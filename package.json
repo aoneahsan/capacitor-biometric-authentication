@@ -70,20 +70,20 @@
     "swiftlint": "cd ios && swiftlint lint --fix --format --path Plugin --verbose"
   },
   "devDependencies": {
-    "@capacitor/android": "^7.4.2",
-    "@capacitor/core": "^7.4.2",
-    "@capacitor/ios": "^7.4.2",
-    "@eslint/js": "^9.33.0",
+    "@capacitor/android": "^7.4.4",
+    "@capacitor/core": "^7.4.4",
+    "@capacitor/ios": "^7.4.4",
+    "@eslint/js": "^9.39.1",
     "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "@types/node": "^24.3.0",
-    "@typescript-eslint/eslint-plugin": "^8.39.1",
-    "@typescript-eslint/parser": "^8.39.1",
-    "eslint": "^9.33.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@types/node": "^24.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.48.0",
+    "@typescript-eslint/parser": "^8.48.0",
+    "eslint": "^9.39.1",
     "prettier": "^3.6.2",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.46.2",
-    "typescript": "^5.9.2"
+    "rimraf": "^6.1.2",
+    "rollup": "^4.53.3",
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "@capacitor/core": "^7.4.2"
