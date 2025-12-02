@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**Readme.md Last Updated:** 2025-12-02
+
 ## Project Overview
 
 This is a Capacitor plugin for biometric authentication across Android, iOS, and Web platforms. The plugin provides a secure, type-safe, and framework-independent solution for biometric authentication with features like session management, encryption, and multiple authentication methods.
@@ -198,6 +200,9 @@ Keep `.gitignore` up-to-date with the project structure. Never commit logs, buil
 **Capacitor projects:** Include android/ios source files in git, but ignore:
 - Build artifacts: `.gradle/`, `build/`, `Pods/`, `DerivedData/`
 - Local configs: `local.properties`, `xcuserdata/`
+
+### Readme Maintenance
+Keep `Readme.md` up-to-date with the project state. Review and update every 2 weeks if significant changes occurred. Update the "Readme.md Last Updated" date at the top of this file after each update.
 
 ## Security Considerations
 

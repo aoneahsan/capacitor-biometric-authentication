@@ -1,17 +1,17 @@
 # Biometric Authentication
 
-A framework-agnostic biometric authentication library that works with any JavaScript framework - React, Vue, Angular, or vanilla JavaScript. No providers required!
+A framework-agnostic biometric authentication library for React, Vue, Angular, or vanilla JavaScript. No providers required!
 
 ## Features
 
-- **🚀 Zero Dependencies** - Works without requiring any specific framework (Capacitor is optional)
-- **🎯 Provider-less** - Direct API like Zustand, no Context/Providers needed
-- **📱 Multi-Platform** - Web (WebAuthn), iOS, Android, Electron support
-- **🔌 Framework Agnostic** - Works with React, Vue, Angular, Vanilla JS
-- **🎨 TypeScript First** - Full type safety and IntelliSense support
-- **🔐 Secure by Default** - Platform-specific secure storage
-- **📦 Tiny Bundle** - Tree-shakeable with dynamic imports
-- **🔄 Backward Compatible** - Works as a Capacitor plugin too
+- **Zero Dependencies** - Works without any specific framework (Capacitor optional)
+- **Provider-less** - Direct API like Zustand, no Context/Providers needed
+- **Multi-Platform** - Web (WebAuthn), iOS, Android, Electron support
+- **Framework Agnostic** - Works with React, Vue, Angular, Vanilla JS
+- **TypeScript First** - Full type safety and IntelliSense
+- **Secure by Default** - Platform-specific secure storage
+- **Tiny Bundle** - Tree-shakeable with dynamic imports
+- **Backward Compatible** - Works as a Capacitor plugin too
 
 ## Installation
 
@@ -23,12 +23,10 @@ yarn add capacitor-biometric-authentication
 
 ## Quick Start
 
-### Simple Web App (No Capacitor)
-
 ```javascript
 import BiometricAuth from 'capacitor-biometric-authentication';
 
-// Check if biometric authentication is available
+// Check availability
 const isAvailable = await BiometricAuth.isAvailable();
 
 // Authenticate
@@ -41,7 +39,7 @@ if (result.success) {
 }
 ```
 
-### React Example (No Providers!)
+### React Example
 
 ```jsx
 import { useState, useEffect } from 'react';
@@ -50,7 +48,6 @@ import BiometricAuth from 'capacitor-biometric-authentication';
 function SecureComponent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Subscribe to auth state changes
   useEffect(() => {
     const unsubscribe = BiometricAuth.subscribe((state) => {
       setIsAuthenticated(state.isAuthenticated);
@@ -59,24 +56,13 @@ function SecureComponent() {
   }, []);
 
   const handleLogin = async () => {
-    const result = await BiometricAuth.authenticate({
-      reason: 'Access your account'
-    });
-    
-    if (!result.success) {
-      console.error('Authentication failed:', result.error);
-    }
+    const result = await BiometricAuth.authenticate({ reason: 'Access your account' });
+    if (!result.success) console.error('Auth failed:', result.error);
   };
 
-  return (
-    <div>
-      {isAuthenticated ? (
-        <h1>Welcome back!</h1>
-      ) : (
-        <button onClick={handleLogin}>Login with Biometrics</button>
-      )}
-    </div>
-  );
+  return isAuthenticated
+    ? <h1>Welcome back!</h1>
+    : <button onClick={handleLogin}>Login with Biometrics</button>;
 }
 ```
 
@@ -84,14 +70,8 @@ function SecureComponent() {
 
 ```vue
 <template>
-  <div>
-    <button v-if="!isAuthenticated" @click="authenticate">
-      Login with Biometrics
-    </button>
-    <div v-else>
-      Welcome back!
-    </div>
-  </div>
+  <button v-if="!isAuthenticated" @click="authenticate">Login with Biometrics</button>
+  <div v-else>Welcome back!</div>
 </template>
 
 <script setup>
@@ -107,211 +87,86 @@ onMounted(() => {
   });
 });
 
-onUnmounted(() => {
-  unsubscribe?.();
-});
+onUnmounted(() => unsubscribe?.());
 
-const authenticate = async () => {
-  await BiometricAuth.authenticate({
-    reason: 'Access your account'
-  });
-};
+const authenticate = () => BiometricAuth.authenticate({ reason: 'Access your account' });
 </script>
 ```
 
 ### Vanilla JavaScript
 
 ```html
-<!DOCTYPE html>
-<html>
-<head>
-  <script type="module">
-    import BiometricAuth from 'https://unpkg.com/capacitor-biometric-authentication/dist/web.js';
-    
-    document.getElementById('auth-btn').addEventListener('click', async () => {
-      const result = await BiometricAuth.authenticate({
-        reason: 'Please authenticate'
-      });
-      
-      if (result.success) {
-        document.getElementById('status').textContent = 'Authenticated!';
-      }
-    });
-  </script>
-</head>
-<body>
-  <button id="auth-btn">Authenticate</button>
-  <div id="status"></div>
-</body>
-</html>
+<script type="module">
+  import BiometricAuth from 'https://unpkg.com/capacitor-biometric-authentication/dist/web.js';
+
+  document.getElementById('auth-btn').addEventListener('click', async () => {
+    const result = await BiometricAuth.authenticate({ reason: 'Please authenticate' });
+    if (result.success) document.getElementById('status').textContent = 'Authenticated!';
+  });
+</script>
+<button id="auth-btn">Authenticate</button>
+<div id="status"></div>
 ```
 
 ## API Reference
 
 ### Core Methods
 
-#### `BiometricAuth.isAvailable()`
-Check if biometric authentication is available on the device.
-
-```typescript
-const isAvailable = await BiometricAuth.isAvailable();
-```
-
-#### `BiometricAuth.authenticate(options?)`
-Perform biometric authentication.
-
-```typescript
-const result = await BiometricAuth.authenticate({
-  reason: 'Please authenticate', // Prompt message
-  cancelTitle: 'Cancel',         // iOS: Cancel button title
-  fallbackTitle: 'Use Passcode', // iOS: Fallback button title
-  maxAttempts: 3,                // Maximum attempts before lockout
-  
-  // Platform-specific options
-  platform: {
-    web: {
-      userVerification: 'preferred'
-    },
-    android: {
-      title: 'Authentication Required',
-      subtitle: 'Log in to your account',
-      confirmationRequired: true
-    },
-    ios: {
-      localizedFallbackTitle: 'Use Device Passcode'
-    }
-  }
-});
-
-if (result.success) {
-  console.log('Authenticated!', result.biometryType);
-} else {
-  console.error('Failed:', result.error);
-}
-```
-
-#### `BiometricAuth.logout()`
-Clear the authentication session.
-
-```typescript
-BiometricAuth.logout();
-```
+| Method | Description |
+|--------|-------------|
+| `isAvailable()` | Check if biometric auth is available |
+| `getSupportedBiometrics()` | Get available biometric types |
+| `authenticate(options?)` | Perform authentication |
+| `deleteCredentials()` | Clear stored credentials |
+| `configure(config)` | Set plugin configuration |
+| `logout()` | Clear authentication session |
 
 ### State Management
 
-#### `BiometricAuth.subscribe(callback)`
-Subscribe to authentication state changes.
-
-```typescript
-const unsubscribe = BiometricAuth.subscribe((state) => {
-  console.log('Is authenticated:', state.isAuthenticated);
-  console.log('Biometry type:', state.biometryType);
-});
-
-// Later: unsubscribe();
-```
-
-#### `BiometricAuth.getState()`
-Get current authentication state.
-
-```typescript
-const state = BiometricAuth.getState();
-console.log(state);
-// {
-//   isAuthenticated: boolean,
-//   sessionId?: string,
-//   biometryType?: 'faceId' | 'touchId' | 'fingerprint',
-//   lastAuthTime?: number
-// }
-```
+| Method | Description |
+|--------|-------------|
+| `subscribe(callback)` | Subscribe to auth state changes |
+| `getState()` | Get current auth state |
+| `isAuthenticated()` | Check if currently authenticated |
 
 ### Utility Methods
 
-#### `BiometricAuth.requireAuthentication(callback, options?)`
-Execute a callback only after successful authentication.
+| Method | Description |
+|--------|-------------|
+| `requireAuthentication(callback, options?)` | Execute callback after auth |
+| `withAuthentication(callback, options?)` | Wrap operation with auth |
+
+### Authentication Options
 
 ```typescript
-await BiometricAuth.requireAuthentication(async () => {
-  // This code runs only after successful authentication
-  await fetchSensitiveData();
-}, {
-  reason: 'Access sensitive data'
+await BiometricAuth.authenticate({
+  title: 'Authentication Required',
+  subtitle: 'Log in to your account',
+  description: 'Use biometrics to continue',
+  fallbackButtonTitle: 'Use Passcode',
+  cancelButtonTitle: 'Cancel',
+  disableFallback: false,
+  maxAttempts: 3,
+  saveCredentials: true,
+  webAuthnOptions: { /* WebAuthn specific */ },
+  androidOptions: { /* Android specific */ }
 });
-```
-
-#### `BiometricAuth.withAuthentication(callback, options?)`
-Wrap any operation with authentication.
-
-```typescript
-const data = await BiometricAuth.withAuthentication(
-  () => fetchUserProfile(),
-  { reason: 'Access your profile' }
-);
 ```
 
 ## Platform Support
 
-| Platform | Technology | Supported |
-|----------|------------|-----------|
+| Platform | Technology | Status |
+|----------|------------|--------|
 | Web | WebAuthn API | ✅ |
 | iOS | Touch ID / Face ID | ✅ |
 | Android | BiometricPrompt | ✅ |
 | Electron | Touch ID (macOS) | ✅ |
-| React Native | Not supported (use React + Capacitor) | ❌ |
 
-## Advanced Usage
+### Browser Support
 
-### Custom Configuration
-
-```typescript
-BiometricAuth.configure({
-  sessionDuration: 300000,  // 5 minutes
-  debug: true,              // Enable debug logs
-  adapter: 'auto'           // 'auto' | 'web' | 'capacitor' | custom
-});
-```
-
-### Custom Adapters
-
-Create your own adapter for unsupported platforms:
-
-```typescript
-class MyCustomAdapter {
-  platform = 'my-platform';
-  
-  async isAvailable() {
-    // Your implementation
-  }
-  
-  async authenticate(options) {
-    // Your implementation
-  }
-  
-  // ... other required methods
-}
-
-BiometricAuth.registerAdapter('my-platform', new MyCustomAdapter());
-```
-
-### Using with Capacitor (Optional)
-
-If you're already using Capacitor, the library works seamlessly:
-
-```typescript
-// Automatically uses Capacitor's native bridge when available
-import BiometricAuth from 'capacitor-biometric-authentication';
-
-// Same API, no changes needed!
-await BiometricAuth.authenticate();
-```
-
-### Web-Only Bundle
-
-For web-only projects, use the smaller web bundle:
-
-```javascript
-import BiometricAuth from 'capacitor-biometric-authentication/web';
-```
+- Chrome/Edge 67+ (Windows Hello, Touch ID)
+- Safari 14+ (Touch ID, Face ID)
+- Firefox 60+ (Windows Hello)
 
 ## Error Handling
 
@@ -320,74 +175,66 @@ const result = await BiometricAuth.authenticate();
 
 if (!result.success) {
   switch (result.error.code) {
-    case 'USER_CANCELLED':
-      // User cancelled the authentication
-      break;
-    case 'AUTHENTICATION_FAILED':
-      // Biometric not recognized
-      break;
-    case 'BIOMETRIC_UNAVAILABLE':
-      // Biometric not available or not enrolled
-      break;
-    case 'LOCKOUT':
-      // Too many failed attempts
-      break;
+    case 'userCancelled': break;      // User cancelled
+    case 'authenticationFailed': break; // Biometric not recognized
+    case 'notAvailable': break;        // Biometric unavailable
+    case 'lockedOut': break;           // Too many failed attempts
   }
 }
 ```
 
-## Migration from v1.x
-
-If you're using the old Capacitor-only version:
-
-```typescript
-// Old way (Capacitor only)
-import { BiometricAuth } from 'capacitor-biometric-authentication';
-await BiometricAuth.authenticate();
-
-// New way (works everywhere)
-import BiometricAuth from 'capacitor-biometric-authentication';
-await BiometricAuth.authenticate(); // Same API!
-```
-
-## Browser Support
-
-- Chrome/Edge 67+ (Windows Hello, Touch ID)
-- Safari 14+ (Touch ID, Face ID)
-- Firefox 60+ (Windows Hello)
-
-## 📚 Full Documentation
-
-Complete documentation is available in the [`docs/`](./docs/) directory:
-
-- **[🚀 Installation Guide](./docs/getting-started/installation.md)** - Detailed setup instructions
-- **[⚡ Quick Start](./docs/getting-started/quick-start.md)** - Get running in 5 minutes
-- **[📱 Platform Guides](./docs/platform-guides/)** - iOS, Android, and Web specifics
-- **[🔧 API Reference](./docs/api-reference/methods.md)** - All methods and types
-- **[❓ FAQ](./docs/migration/faq.md)** - Frequently asked questions
-
-## Example App
-
-Check out the `example/` directory for a complete React application demonstrating all features of the plugin.
+## Development
 
 ```bash
-cd example
-npm install
-npm run dev
+# Build plugin
+npm run build
+
+# Watch mode
+npm run watch
+
+# Lint & format
+npm run lint
+npm run prettier
+
+# Test in example app
+cd example && npm run dev
 ```
+
+### Project Structure
+
+```
+├── src/                  # TypeScript source
+│   ├── definitions.ts    # API interfaces
+│   ├── index.ts          # Plugin entry
+│   ├── web.ts            # Web implementation
+│   ├── core/             # Core logic
+│   ├── adapters/         # Platform adapters
+│   └── utils/            # Utilities
+├── android/              # Android native (BiometricPrompt)
+├── ios/                  # iOS native (LocalAuthentication)
+├── example/              # React example app
+└── docs/                 # Documentation
+```
+
+## Documentation
+
+Full documentation in [`docs/`](./docs/):
+
+- [Installation Guide](./docs/getting-started/installation.md)
+- [Quick Start](./docs/getting-started/quick-start.md)
+- [Platform Guides](./docs/platform-guides/) - iOS, Android, Web
+- [API Reference](./docs/api-reference/methods.md)
+- [FAQ](./docs/migration/faq.md)
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+See [Contributing Guide](./docs/CONTRIBUTING.md) for details.
 
 ## Support
 
-- **📚 Documentation**: [Full Documentation](./docs/README.md)
-- **❓ FAQ**: [Frequently Asked Questions](./docs/migration/faq.md)
-- **🐛 Issues**: [GitHub Issues](https://github.com/aoneahsan/capacitor-biometric-authentication/issues)
-- **💬 Discussions**: [GitHub Discussions](https://github.com/aoneahsan/capacitor-biometric-authentication/discussions)
-- **📧 Email**: [aoneahsan@gmail.com](mailto:aoneahsan@gmail.com)
-- **🔗 LinkedIn**: [Connect on LinkedIn](https://linkedin.com/in/aoneahsan)
+- [Documentation](./docs/README.md)
+- [GitHub Issues](https://github.com/aoneahsan/capacitor-biometric-authentication/issues)
+- [Email](mailto:aoneahsan@gmail.com)
 
 ## License
 
