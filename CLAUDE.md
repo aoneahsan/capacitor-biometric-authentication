@@ -1,247 +1,137 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
+**Last Updated:** 2025-12-02
 **Readme.md Last Updated:** 2025-12-02
+**Project Knowledge Base Last Updated:** 2025-12-02
 
 ## Project Overview
 
-This is a Capacitor plugin for biometric authentication across Android, iOS, and Web platforms. The plugin provides a secure, type-safe, and framework-independent solution for biometric authentication with features like session management, encryption, and multiple authentication methods.
+Capacitor plugin for biometric authentication (Android, iOS, Web). Framework-agnostic, provider-less architecture. Version 2.0.3.
 
-## Development Commands
+| Platform | Technology | Min Version |
+|----------|------------|-------------|
+| Android | BiometricPrompt + Keystore | SDK 23 |
+| iOS | LocalAuthentication + Keychain | iOS 12.0 |
+| Web | WebAuthn API | Chrome 67+, Safari 14+, Firefox 60+ |
+| Electron | Touch ID (macOS) | - |
 
-### Plugin Development (Main Package)
+## Commands
+
 ```bash
-# Build the plugin
-npm run build
+# Plugin
+yarn build              # Build plugin
+yarn watch              # Watch mode
+yarn lint               # Lint code
+yarn prettier           # Format code
 
-# Watch for TypeScript changes
-npm run watch
-
-# Run linting
-npm run lint
-
-# Format code
-npm run prettier
-
-# Clean build artifacts
-npm run clean
-
-# Lint iOS Swift code
-npm run swiftlint
-```
-
-### Example App Development
-Navigate to the `example/` directory for testing:
-```bash
+# Example app
 cd example
-
-# Development server
-npm run dev
-
-# Build and sync with native projects
-npm run cap:sync
-
-# Run on platforms
-npm run cap:android:run
-npm run cap:ios:run
+yarn dev                # Dev server
+yarn cap:sync           # Sync native
+yarn cap:android:run    # Run Android
+yarn cap:ios:run        # Run iOS
 ```
 
-## Architecture and Code Structure
-
-### Plugin Architecture
+## Structure
 
 ```
-├── src/                        # TypeScript source
-│   ├── definitions.ts          # Complete API interfaces and types
-│   ├── index.ts               # Plugin registration
-│   ├── web.ts                 # Web implementation (WebAuthn)
-│   └── utils/                 # Utility functions
-│       ├── index.ts           # Utils exports
-│       └── session.ts         # Session management
-├── android/                    # Android native implementation
-│   └── src/main/java/.../
-│       └── BiometricAuthPlugin.java  # BiometricPrompt API
-├── ios/                        # iOS native implementation
-│   └── Plugin/
-│       └── BiometricAuthPlugin.swift  # LocalAuthentication framework
-└── example/                    # React example app for testing
+src/
+├── index.ts            # Entry, exports
+├── definitions.ts      # API types
+├── web.ts              # WebAuthn impl
+├── core/               # Core logic, platform detection
+├── adapters/           # Web, Capacitor, Electron adapters
+└── utils/              # Session, WebAuthn utilities
+android/                # BiometricPrompt implementation
+ios/                    # LocalAuthentication implementation
+example/                # React test app
+docs/                   # All documentation
+  └── project-knowledge-base/  # Complete technical reference
 ```
 
-### Key Technologies
+## API Methods
 
-- **Build System**: Rollup for bundling, TypeScript for compilation
-- **Native Android**: BiometricPrompt API with Android Keystore
-- **Native iOS**: LocalAuthentication framework with Keychain
-- **Web**: WebAuthn API for browser biometric support
-- **Example App**: React + Vite for testing
-
-### Plugin API Methods
-
-1. `isAvailable()` - Check biometric availability
-2. `getSupportedBiometrics()` - Get available biometric types
-3. `authenticate(options?)` - Perform authentication
-4. `deleteCredentials()` - Clear stored credentials
-5. `configure(config)` - Set plugin configuration
-
-### Current Implementation Status
-
-- ✅ Complete TypeScript definitions and interfaces
-- ✅ Web implementation with WebAuthn
-- ✅ Android native implementation
-- ✅ iOS native implementation
-- ⚠️  Utils implementation (placeholders exist)
-- ✅ Example app structure
+| Method | Description |
+|--------|-------------|
+| `isAvailable()` | Check biometric availability |
+| `getSupportedBiometrics()` | Get available biometric types |
+| `authenticate(options?)` | Perform authentication |
+| `deleteCredentials()` | Clear stored credentials |
+| `configure(config)` | Set configuration |
+| `logout()` | Clear session |
+| `getState()` | Get auth state |
+| `subscribe(callback)` | Subscribe to state changes |
 
 ## Development Workflow
 
-### Making Plugin Changes
+1. Edit TypeScript in `src/`
+2. `yarn build` to compile
+3. Native changes: `android/` or `ios/Plugin/`
+4. Test: `cd example && yarn cap:sync && yarn cap:android:run`
 
-1. Edit TypeScript files in `src/`
-2. Run `npm run build` to compile and bundle
-3. For native changes:
-   - Android: Edit Java files in `android/src/main/java/`
-   - iOS: Edit Swift files in `ios/Plugin/`
-4. Test changes in the example app:
-   ```bash
-   cd example
-   npm run cap:sync
-   npm run cap:android:run  # or cap:ios:run
-   ```
-
-### Testing on Devices
-
-1. Ensure the plugin is built: `npm run build` (in root)
-2. Link the plugin in example app (if not already linked)
-3. Sync and run: `npm run cap:sync` then platform-specific run command
-
-### Publishing Updates
-
-1. Update version in `package.json`
-2. Update `CHANGELOG.md`
-3. Run `npm run build`
-4. Publish: `npm publish`
-
-## Platform-Specific Notes
-
-### Android
-- Minimum SDK: 23 (Android 6.0)
-- Uses BiometricPrompt for modern biometric authentication
-- Stores encrypted credentials in SharedPreferences
-- Supports fingerprint, face recognition, and device credentials
-
-### iOS
-- Minimum iOS version: 12.0
-- Uses LocalAuthentication framework
-- Supports Touch ID and Face ID
-- Stores credentials in Keychain
-
-### Web
-- Uses WebAuthn API where available
-- Falls back to session-based authentication
-- Stores encrypted data in localStorage
-
-## Code Style Guidelines
-
-- TypeScript strict mode enabled
-- 2-space indentation (enforced by .editorconfig)
-- Use async/await for asynchronous operations
-- Follow existing patterns in the codebase
-- All public APIs must be fully typed
-
-## Project Organization Rules
+## Rules
 
 ### Root Directory
-Keep the root directory clean. Only the following files should remain at root:
-- `CLAUDE.md` - AI assistant instructions
-- `CHANGELOG.md` - Version history
-- `LICENSE` - License file
-- `Readme.md` - Main project readme
-- Configuration files (package.json, tsconfig.json, rollup.config.js, etc.)
-- Dot files (.eslintrc, .prettierrc, .gitignore, etc.)
+Keep clean. Only at root: CLAUDE.md, CHANGELOG.md, LICENSE, Readme.md, config files, dot files.
 
-### Documentation (`docs/`)
-All documentation files (except Readme.md, CHANGELOG.md, LICENSE) must be placed in the `docs/` folder with proper nesting:
-```
-docs/
-├── README.md              # Docs index
-├── CONTRIBUTING.md        # Contribution guidelines
-├── SECURITY.md           # Security policy
-├── getting-started/      # Installation and quick start
-├── api-reference/        # API methods and types
-├── configuration/        # Options and customization
-├── platform-guides/      # Platform-specific docs (android, ios, web)
-├── advanced-usage/       # Security, sessions, integrations
-├── error-handling/       # Error overview and troubleshooting
-└── migration/            # Migration guides and FAQ
-```
+### Documentation
+All docs in `docs/` folder with proper nesting. Exception: Readme.md, CHANGELOG.md, LICENSE stay at root.
 
 ### No Scripts
-Do NOT create any shell scripts (.sh files) or a scripts folder. All commands should be run directly or defined in package.json. Only create a script file if the user explicitly requests it with a specific purpose - in that case, document the reason in the script file itself.
+No .sh files or scripts folder. Use package.json scripts or run commands directly. Only create if explicitly requested.
 
 ### No Unnecessary Files
-Do NOT create documentation, text, or record-keeping files unless:
-- Explicitly requested by the user
-- Absolutely required for the project to function
-
-Skip creating: changelogs for minor changes, TODO.md files, NOTES.txt, scratch files, or any "for the record" type files. Keep the project lean.
+Don't create docs/txt/record files unless explicitly requested or absolutely required. No TODO.md, NOTES.txt, scratch files.
 
 ### Gitignore Policy
-Keep `.gitignore` up-to-date with the project structure. Never commit logs, builds, or regeneratable files (node_modules, dist, build, www, Pods, etc.).
+Ask "Private or public project?" before configuring:
+- **Private**: Secrets OK in git, only ignore builds/logs
+- **Public**: No secrets, .env, sensitive info
 
-**Before configuring gitignore, always ask:** "Is this a private or public git project?"
-- **Private project**: Include secrets/.env files in git (they're safe). Only ignore builds/logs/regeneratable files.
-- **Public project**: Exclude all secrets, .env files, sensitive info, API keys, credentials - in addition to builds/logs.
+Always include: `*.ignore.*`, `project-record-ignore/`
 
-**Custom patterns to always include:**
-- `*.ignore.*` - Any file with .ignore. in the name
-- `project-record-ignore/` - Personal record folder
+Capacitor: Include android/ios source, ignore `.gradle/`, `build/`, `Pods/`, `DerivedData/`, `local.properties`
 
-**Capacitor projects:** Include android/ios source files in git, but ignore:
-- Build artifacts: `.gradle/`, `build/`, `Pods/`, `DerivedData/`
-- Local configs: `local.properties`, `xcuserdata/`
+### Package Manager
+- **Project**: `yarn` (yarn add, yarn install)
+- **Global**: `pnpm` (pnpm add -g)
+- **Install pnpm**: `npm install -g pnpm`
+- **Install yarn**: `pnpm add -g yarn`
 
-### Readme Maintenance
-Keep `Readme.md` up-to-date with the project state. Review and update every 2 weeks if significant changes occurred. Update the "Readme.md Last Updated" date at the top of this file after each update.
+### Maintenance Schedule
+Update every 2 weeks or when significant changes occur:
+- **CLAUDE.md**: Update "Last Updated" date at top
+- **Readme.md**: Update "Readme.md Last Updated" date
+- **Project Knowledge Base**: Update "Project Knowledge Base Last Updated" date
 
-### Package Manager Policy
-- **Project dependencies**: Use `yarn` for all local project installs (`yarn add`, `yarn install`)
-- **Global packages**: Use `pnpm` for global installs (`pnpm add -g <package>`)
-- **Installing pnpm**: Use `npm install -g pnpm` (only for pnpm itself)
-- **Installing yarn**: Use `pnpm add -g yarn` (if not available)
+### Project Knowledge Base
+`docs/project-knowledge-base/` contains complete technical docs:
+- 01-project-overview.md - Tech stack, architecture
+- 02-api-reference.md - All methods, signatures
+- 03-types-interfaces.md - TypeScript definitions
+- 04-platform-implementations.md - Platform details
+- 05-configuration.md - Config options
+- 06-error-handling.md - Error codes, patterns
+- 07-project-structure.md - Files, build config
 
-Priority chain: `npm` → install `pnpm` → install `yarn` and other globals → `yarn` for project dependencies.
+## Code Style
 
-## Security Considerations
+- TypeScript strict mode
+- 2-space indentation
+- async/await for async ops
+- All public APIs fully typed
 
-- Never store sensitive data in plain text
-- Use platform-specific secure storage (Keystore/Keychain)
-- Implement proper session management
-- Clear credentials on app uninstall
-- Handle authentication failures gracefully
+## Adding New Method
 
-## Common Development Tasks
+1. Define interface in `src/definitions.ts`
+2. Implement in `src/web.ts`
+3. Implement in `android/` and `ios/`
+4. Export from `src/index.ts`
+5. Test in example app
 
-### Adding a New Method
-1. Define the method interface in `src/definitions.ts`
-2. Implement in `src/web.ts` for web platform
-3. Implement in native files for Android/iOS
-4. Add to the plugin exports
-5. Test in the example app
+## Security
 
-### Debugging Native Code
-- **Android**: Open in Android Studio via the example app
-- **iOS**: Open in Xcode via the example app
-- Use platform-specific debugging tools and logs
-
-### Updating Dependencies
-```bash
-# Update Capacitor to latest
-npm update @capacitor/core @capacitor/android @capacitor/ios
-
-# Update dev dependencies
-npm update
-
-# Check for outdated packages
-npm outdated
-```
+- Platform-specific secure storage (Keystore/Keychain)
+- Never store sensitive data plain text
+- Proper session management
+- Handle auth failures gracefully
