@@ -14,12 +14,14 @@ const mainBuild = {
       },
       sourcemap: true,
       inlineDynamicImports: true,
+      exports: 'named',
     },
     {
       file: 'dist/plugin.cjs.js',
       format: 'cjs',
       sourcemap: true,
       inlineDynamicImports: true,
+      exports: 'named',
     },
     {
       file: 'dist/plugin.mjs',
@@ -54,6 +56,10 @@ const webBuild = {
       name: 'BiometricAuth',
       sourcemap: true,
       inlineDynamicImports: true,
+      exports: 'named',
+      globals: {
+        './adapters/CapacitorAdapter': 'CapacitorAdapter',
+      },
     },
   ],
   external: [],
