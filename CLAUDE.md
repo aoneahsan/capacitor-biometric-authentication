@@ -174,8 +174,8 @@ docs/
 └── migration/            # Migration guides and FAQ
 ```
 
-### Scripts
-If standalone script files are needed, place them in a `scripts/` folder at root. Currently, all scripts are defined in package.json.
+### No Scripts
+Do NOT create any shell scripts (.sh files) or a scripts folder. All commands should be run directly or defined in package.json. Only create a script file if the user explicitly requests it with a specific purpose - in that case, document the reason in the script file itself.
 
 ### No Unnecessary Files
 Do NOT create documentation, text, or record-keeping files unless:
@@ -183,6 +183,21 @@ Do NOT create documentation, text, or record-keeping files unless:
 - Absolutely required for the project to function
 
 Skip creating: changelogs for minor changes, TODO.md files, NOTES.txt, scratch files, or any "for the record" type files. Keep the project lean.
+
+### Gitignore Policy
+Keep `.gitignore` up-to-date with the project structure. Never commit logs, builds, or regeneratable files (node_modules, dist, build, www, Pods, etc.).
+
+**Before configuring gitignore, always ask:** "Is this a private or public git project?"
+- **Private project**: Include secrets/.env files in git (they're safe). Only ignore builds/logs/regeneratable files.
+- **Public project**: Exclude all secrets, .env files, sensitive info, API keys, credentials - in addition to builds/logs.
+
+**Custom patterns to always include:**
+- `*.ignore.*` - Any file with .ignore. in the name
+- `project-record-ignore/` - Personal record folder
+
+**Capacitor projects:** Include android/ios source files in git, but ignore:
+- Build artifacts: `.gradle/`, `build/`, `Pods/`, `DerivedData/`
+- Local configs: `local.properties`, `xcuserdata/`
 
 ## Security Considerations
 
