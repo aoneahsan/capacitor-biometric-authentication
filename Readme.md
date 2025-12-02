@@ -16,8 +16,6 @@ A framework-agnostic biometric authentication library for React, Vue, Angular, o
 ## Installation
 
 ```bash
-npm install capacitor-biometric-authentication
-# or
 yarn add capacitor-biometric-authentication
 ```
 
@@ -186,18 +184,21 @@ if (!result.success) {
 ## Development
 
 ```bash
+# Install dependencies
+yarn install
+
 # Build plugin
-npm run build
+yarn build
 
 # Watch mode
-npm run watch
+yarn watch
 
 # Lint & format
-npm run lint
-npm run prettier
+yarn lint
+yarn prettier
 
 # Test in example app
-cd example && npm run dev
+cd example && yarn dev
 ```
 
 ### Project Structure

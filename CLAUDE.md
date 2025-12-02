@@ -204,6 +204,14 @@ Keep `.gitignore` up-to-date with the project structure. Never commit logs, buil
 ### Readme Maintenance
 Keep `Readme.md` up-to-date with the project state. Review and update every 2 weeks if significant changes occurred. Update the "Readme.md Last Updated" date at the top of this file after each update.
 
+### Package Manager Policy
+- **Project dependencies**: Use `yarn` for all local project installs (`yarn add`, `yarn install`)
+- **Global packages**: Use `pnpm` for global installs (`pnpm add -g <package>`)
+- **Installing pnpm**: Use `npm install -g pnpm` (only for pnpm itself)
+- **Installing yarn**: Use `pnpm add -g yarn` (if not available)
+
+Priority chain: `npm` → install `pnpm` → install `yarn` and other globals → `yarn` for project dependencies.
+
 ## Security Considerations
 
 - Never store sensitive data in plain text
