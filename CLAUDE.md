@@ -147,6 +147,43 @@ npm run cap:ios:run
 - Follow existing patterns in the codebase
 - All public APIs must be fully typed
 
+## Project Organization Rules
+
+### Root Directory
+Keep the root directory clean. Only the following files should remain at root:
+- `CLAUDE.md` - AI assistant instructions
+- `CHANGELOG.md` - Version history
+- `LICENSE` - License file
+- `Readme.md` - Main project readme
+- Configuration files (package.json, tsconfig.json, rollup.config.js, etc.)
+- Dot files (.eslintrc, .prettierrc, .gitignore, etc.)
+
+### Documentation (`docs/`)
+All documentation files (except Readme.md, CHANGELOG.md, LICENSE) must be placed in the `docs/` folder with proper nesting:
+```
+docs/
+├── README.md              # Docs index
+├── CONTRIBUTING.md        # Contribution guidelines
+├── SECURITY.md           # Security policy
+├── getting-started/      # Installation and quick start
+├── api-reference/        # API methods and types
+├── configuration/        # Options and customization
+├── platform-guides/      # Platform-specific docs (android, ios, web)
+├── advanced-usage/       # Security, sessions, integrations
+├── error-handling/       # Error overview and troubleshooting
+└── migration/            # Migration guides and FAQ
+```
+
+### Scripts
+If standalone script files are needed, place them in a `scripts/` folder at root. Currently, all scripts are defined in package.json.
+
+### No Unnecessary Files
+Do NOT create documentation, text, or record-keeping files unless:
+- Explicitly requested by the user
+- Absolutely required for the project to function
+
+Skip creating: changelogs for minor changes, TODO.md files, NOTES.txt, scratch files, or any "for the record" type files. Keep the project lean.
+
 ## Security Considerations
 
 - Never store sensitive data in plain text
