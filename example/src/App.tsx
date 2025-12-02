@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import BiometricAuth from '../../src';
+// Production integration: Import from the installed package
+// During development with local linking, this still works via npm link or file: protocol
+import BiometricAuth from 'capacitor-biometric-authentication';
 import type {
   BiometricAuthResult,
   BiometricAuthState,
   BiometryType,
-} from '../../src';
+} from 'capacitor-biometric-authentication';
 
 const App: React.FC = () => {
   const [status, setStatus] = useState<string>('');
@@ -78,7 +80,7 @@ const App: React.FC = () => {
   const configurePlugin = () => {
     try {
       BiometricAuth.configure({
-        sessionDuration: 7200000, // 2 hours in ms
+        sessionDuration: 7200, // 2 hours in seconds
         debug: true,
       });
       setStatus('Plugin configured successfully');

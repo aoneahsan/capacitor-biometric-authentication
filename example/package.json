@@ -9,13 +9,16 @@
     "preview": "vite preview",
     "cap:sync": "npm run build && cap sync",
     "cap:android:run": "cap run android",
-    "cap:ios:run": "cap run ios"
+    "cap:ios:run": "cap run ios",
+    "cap:android:build": "cap build android",
+    "cap:ios:build": "cap build ios"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.1",
     "@capacitor/core": "^7.4.1",
     "@capacitor/ios": "^7.4.1",
     "@ionic/pwa-elements": "^3.3.0",
+    "capacitor-biometric-authentication": "file:..",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
