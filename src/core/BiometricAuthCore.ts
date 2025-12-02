@@ -14,8 +14,9 @@ export class BiometricAuthCore {
   private config: BiometricAuthConfiguration = {
     adapter: 'auto',
     debug: false,
-    sessionDuration: 300000, // 5 minutes
+    sessionDuration: 300, // 5 minutes in seconds
   };
+  private sessionTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private adapters = new Map<string, BiometricAuthAdapter>();
   private currentAdapter: BiometricAuthAdapter | null = null;
   private state: BiometricAuthState = {
@@ -169,9 +170,14 @@ export class BiometricAuthCore {
 
         // Set up session timeout
         if (this.config.sessionDuration && this.config.sessionDuration > 0) {
-          setTimeout(() => {
+          // Clear any existing timeout to prevent memory leaks
+          if (this.sessionTimeoutId !== null) {
+            clearTimeout(this.sessionTimeoutId);
+          }
+          // Convert seconds to milliseconds for setTimeout
+          this.sessionTimeoutId = setTimeout(() => {
             this.logout();
-          }, this.config.sessionDuration);
+          }, this.config.sessionDuration * 1000);
         }
       } else {
         this.updateState({
@@ -225,6 +231,12 @@ export class BiometricAuthCore {
   }
 
   logout() {
+    // Clear session timeout to prevent memory leaks
+    if (this.sessionTimeoutId !== null) {
+      clearTimeout(this.sessionTimeoutId);
+      this.sessionTimeoutId = null;
+    }
+
     this.updateState({
       isAuthenticated: false,
       sessionId: undefined,
@@ -243,10 +255,11 @@ export class BiometricAuthCore {
       return false;
     }
 
-    // Check if session is still valid
+    // Check if session is still valid (sessionDuration is in seconds)
     if (this.config.sessionDuration && this.config.sessionDuration > 0) {
-      const elapsed = Date.now() - this.state.lastAuthTime;
-      if (this.config.sessionDuration && elapsed > this.config.sessionDuration) {
+      const elapsedMs = Date.now() - this.state.lastAuthTime;
+      const sessionDurationMs = this.config.sessionDuration * 1000;
+      if (elapsedMs > sessionDurationMs) {
         this.logout();
         return false;
       }

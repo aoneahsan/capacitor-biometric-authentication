@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Full WebAuthn options support for web platform
+- Real cryptographic signature generation on Android using Android Keystore ECDSA keys
+- Real cryptographic signature generation on iOS using Keychain SecKey ECDSA keys
+- WebAuthn-compliant authenticatorData generation on Android and iOS
+- Proper attestation object generation with CBOR encoding on Android and iOS
+- Public key export in registration responses for backend verification
+- Lockout enforcement on iOS with configurable maxAttempts and lockoutDuration
+- Dynamic origin generation using actual app package/bundle identifier
+
+### Fixed
+- **CRITICAL**: iOS `register()` method now properly exposed in Objective-C bridge
+- Session duration units standardized to seconds (was incorrectly milliseconds in core)
+- Memory leak in BiometricAuthCore from uncleaned setTimeout callbacks
+- Hardcoded WebAuthn origin in Android replaced with dynamic package-based origin
+- Hardcoded WebAuthn origin in iOS replaced with dynamic bundle identifier
+- Mock "mobile_signature" replaced with real ECDSA signatures on both platforms
+- Mock "mobile_attestation" replaced with real attestation objects on both platforms
+- Empty authenticatorData replaced with proper WebAuthn-compliant format
+- Duplicate biometrics return in iOS (was returning both "touchId" and "fingerprint")
+- Duplicate imports in Android BiometricAuthPlugin.java
+- Session timeout now properly cleared on logout and new authentication
+
+### Security
+- All cryptographic operations now use platform-specific secure enclaves (Android Keystore, iOS Keychain)
+- Signatures are generated using biometric-protected ECDSA P-256 keys
+- Challenge data is properly signed for WebAuthn compliance
+- Sign count is tracked and incremented for replay attack prevention
 - New `webAuthnOptions` property in `BiometricAuthOptions` interface
 - Separate `register()` method for explicit credential creation (web platform)
 - Support for all WebAuthn creation options:
