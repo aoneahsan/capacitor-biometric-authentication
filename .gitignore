@@ -1,0 +1,117 @@
+# ===========================================
+# Root .gitignore for Biometric Package Monorepo
+# ===========================================
+
+# Node modules (all projects)
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+www/
+*.tsbuildinfo
+
+# Package manager files
+package-lock.json
+.pnp
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# IDE/Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.temp/
+
+# Testing/Coverage
+coverage/
+.nyc_output/
+
+# ===========================================
+# Capacitor/Mobile (Android & iOS)
+# ===========================================
+
+# Android
+**/android/.gradle/
+**/android/build/
+**/android/app/build/
+**/android/local.properties
+**/android/.cxx/
+**/android/captures/
+**/android/.externalNativeBuild/
+
+# iOS
+**/ios/Pods/
+**/ios/build/
+**/ios/DerivedData/
+**/ios/*.xcworkspace/xcuserdata/
+**/ios/*.xcodeproj/xcuserdata/
+**/ios/*.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+**/.cocoapods/
+
+# ===========================================
+# Custom ignore patterns
+# ===========================================
+
+# Files/folders with .ignore. in name
+*.ignore.*
+*.ignore
+**/*.ignore.*
+**/*.ignore
+
+# Project record folders (local notes/scratch)
+project-record-ignore/
+**/project-record-ignore/
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# ===========================================
+# Misc
+# ===========================================
+
+# TypeScript
+*.tsbuildinfo
+
+# Sentry
+.sentryclirc
+
+# History
+.history/
