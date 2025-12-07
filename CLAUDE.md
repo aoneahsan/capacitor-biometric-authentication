@@ -1,8 +1,26 @@
 # CLAUDE.md
 
-**Last Updated:** 2025-12-02
+**Last Updated:** 2025-12-07
 **Readme.md Last Updated:** 2025-12-02
 **Project Knowledge Base Last Updated:** 2025-12-02
+
+## ⚠️ CRITICAL: Build & Link After Changes
+
+**MANDATORY RULE**: After making ANY changes to this package, you MUST:
+
+1. **Build the package**: `yarn build`
+2. The package is linked via `yarn link` to `frontend-test-app`
+
+This ensures changes are immediately available for testing without publishing.
+
+### Link Status
+- ✅ `frontend-test-app` - linked via `yarn link "capacitor-biometric-authentication"`
+
+### Quick Command
+```bash
+# After making changes, run from this directory:
+yarn build
+```
 
 ## Project Overview
 
