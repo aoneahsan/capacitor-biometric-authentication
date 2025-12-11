@@ -1,3 +1,16 @@
+/**
+ * Capacitor Plugin Definitions
+ *
+ * Note: For new code, prefer importing from './types' which provides
+ * the unified type system with UPPER_CASE error codes.
+ *
+ * These types are maintained for backward compatibility with existing
+ * Capacitor plugin implementations.
+ */
+
+// Re-export unified types for consumers who want the new API
+export * from './types';
+
 export interface BiometricAuthPlugin {
   /**
    * Check if biometric authentication is available on the device
@@ -389,11 +402,14 @@ export enum FallbackMethod {
   SECURITY_QUESTION = 'securityQuestion',
 }
 
+/**
+ * @deprecated Use BiometricError from './types' instead
+ */
 export interface BiometricAuthError {
   /**
    * Error code
    */
-  code: BiometricErrorCode;
+  code: LegacyBiometricErrorCode;
   /**
    * Human-readable error message
    */
@@ -404,7 +420,11 @@ export interface BiometricAuthError {
   details?: unknown;
 }
 
-export enum BiometricErrorCode {
+/**
+ * Legacy error codes with camelCase values
+ * @deprecated Use BiometricErrorCode from './types' instead (UPPER_CASE values)
+ */
+export enum LegacyBiometricErrorCode {
   AUTHENTICATION_FAILED = 'authenticationFailed',
   USER_CANCELLED = 'userCancelled',
   SYSTEM_CANCELLED = 'systemCancelled',

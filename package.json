@@ -67,7 +67,10 @@
     "lint": "eslint . --ext ts",
     "prettier": "prettier --write .",
     "prepublishOnly": "npm run build",
-    "swiftlint": "cd ios && swiftlint lint --fix --format --path Plugin --verbose"
+    "swiftlint": "cd ios && swiftlint lint --fix --format --path Plugin --verbose",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@capacitor/android": "^7.4.4",
@@ -79,11 +82,14 @@
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.48.1",
     "@typescript-eslint/parser": "^8.48.1",
+    "@vitest/coverage-v8": "^4.0.15",
     "eslint": "^9.39.1",
+    "jsdom": "^27.2.0",
     "prettier": "^3.7.3",
     "rimraf": "^6.1.2",
     "rollup": "^4.53.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
   },
   "peerDependencies": {
     "@capacitor/core": "^7.4.4"

@@ -1,113 +1,35 @@
-export interface BiometricAuthOptions {
-  reason?: string;
-  cancelTitle?: string;
-  fallbackTitle?: string;
-  disableDeviceCredential?: boolean;
-  maxAttempts?: number;
-  sessionTimeout?: number;
-  requireConfirmation?: boolean;
-  platform?: {
-    web?: WebAuthOptions;
-    android?: AndroidAuthOptions;
-    ios?: IOSAuthOptions;
-  };
-}
+/**
+ * Core types - Re-exported from canonical types location
+ *
+ * @deprecated Import directly from '../types' instead
+ */
 
-export interface WebAuthOptions {
-  rpId?: string;
-  rpName?: string;
-  challenge?: ArrayBuffer;
-  userVerification?: UserVerificationRequirement;
-  timeout?: number;
-  attestation?: AttestationConveyancePreference;
-  authenticatorSelection?: AuthenticatorSelectionCriteria;
-}
+// Re-export all types from canonical location
+export {
+  // Error types
+  BiometricErrorCode,
+  BiometricError,
+  normalizeErrorCode,
 
-export interface AndroidAuthOptions {
-  title?: string;
-  subtitle?: string;
-  description?: string;
-  negativeButtonText?: string;
-  confirmationRequired?: boolean;
-  deviceCredentialAllowed?: boolean;
-  strongBiometricOnly?: boolean;
-}
+  // Result types
+  BiometryType,
+  BiometricAuthResult,
+  BiometricAuthState,
 
-export interface IOSAuthOptions {
-  localizedReason?: string;
-  localizedCancelTitle?: string;
-  localizedFallbackTitle?: string;
-  biometryType?: 'touchId' | 'faceId';
-  evaluatePolicy?: 'deviceOwnerAuthentication' | 'deviceOwnerAuthenticationWithBiometrics';
-}
+  // Option types
+  BiometricAuthOptions,
 
-export interface BiometricAuthResult {
-  success: boolean;
-  error?: BiometricError;
-  biometryType?: BiometryType;
-  sessionId?: string;
-  platform?: string;
-}
+  // Adapter types
+  BiometricAuthAdapter,
+  BiometricAuthConfiguration,
 
-export interface BiometricError {
-  code: BiometricErrorCode;
-  message: string;
-  details?: unknown;
-}
+  // Platform types
+  PlatformInfo,
+} from '../types';
 
-export enum BiometricErrorCode {
-  BIOMETRIC_UNAVAILABLE = 'BIOMETRIC_UNAVAILABLE',
-  AUTHENTICATION_FAILED = 'AUTHENTICATION_FAILED',
-  USER_CANCELLED = 'USER_CANCELLED',
-  TIMEOUT = 'TIMEOUT',
-  LOCKOUT = 'LOCKOUT',
-  NOT_ENROLLED = 'NOT_ENROLLED',
-  PLATFORM_NOT_SUPPORTED = 'PLATFORM_NOT_SUPPORTED',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
-}
-
-export enum BiometryType {
-  FINGERPRINT = 'fingerprint',
-  FACE_ID = 'faceId',
-  TOUCH_ID = 'touchId',
-  IRIS = 'iris',
-  MULTIPLE = 'multiple',
-  UNKNOWN = 'unknown'
-}
-
-export interface BiometricAuthConfiguration {
-  adapter?: 'auto' | string;
-  customAdapters?: Record<string, BiometricAuthAdapter>;
-  debug?: boolean;
-  sessionDuration?: number;
-  encryptionKey?: string;
-}
-
-export interface BiometricAuthAdapter {
-  platform: string;
-  isAvailable(): Promise<boolean>;
-  getSupportedBiometrics(): Promise<BiometryType[]>;
-  authenticate(options?: BiometricAuthOptions): Promise<BiometricAuthResult>;
-  deleteCredentials(): Promise<void>;
-  hasCredentials(): Promise<boolean>;
-}
-
-export interface BiometricAuthState {
-  isAuthenticated: boolean;
-  sessionId?: string;
-  lastAuthTime?: number;
-  biometryType?: BiometryType;
-  error?: BiometricError;
-}
-
-export interface PlatformInfo {
-  name: string;
-  version?: string;
-  isCapacitor: boolean;
-  isReactNative: boolean;
-  isCordova: boolean;
-  isWeb: boolean;
-  isIOS: boolean;
-  isAndroid: boolean;
-  isElectron: boolean;
-}
+// Re-export platform option types for backward compatibility
+export type {
+  WebAuthPlatformOptions as WebAuthOptions,
+  AndroidAuthPlatformOptions as AndroidAuthOptions,
+  IOSAuthPlatformOptions as IOSAuthOptions,
+} from '../types';

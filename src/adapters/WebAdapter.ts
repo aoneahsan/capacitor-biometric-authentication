@@ -6,6 +6,12 @@ import {
   BiometryType,
   WebAuthOptions
 } from '../core/types';
+import {
+  arrayBufferToBase64,
+  base64ToArrayBuffer,
+  generateSessionId as generateSecureSessionId,
+} from '../utils/encoding';
+import { createErrorResult } from '../utils/error-handler';
 
 export class WebAdapter implements BiometricAuthAdapter {
   platform = 'web';
@@ -65,7 +71,7 @@ export class WebAdapter implements BiometricAuthAdapter {
         return {
           success: true,
           biometryType: BiometryType.MULTIPLE,
-          sessionId: this.generateSessionId(),
+          sessionId: generateSecureSessionId(),
           platform: 'web'
         };
       }
@@ -75,14 +81,14 @@ export class WebAdapter implements BiometricAuthAdapter {
       
       if (credential) {
         // Store credential for future use
-        const credentialId = this.arrayBufferToBase64(credential.rawId);
+        const credentialId = arrayBufferToBase64(credential.rawId);
         this.credentials.set(credentialId, credential);
         this.saveCredentialId(credentialId);
 
         return {
           success: true,
           biometryType: BiometryType.MULTIPLE,
-          sessionId: this.generateSessionId(),
+          sessionId: generateSecureSessionId(),
           platform: 'web'
         };
       }
@@ -96,7 +102,7 @@ export class WebAdapter implements BiometricAuthAdapter {
       };
 
     } catch (error) {
-      return this.handleError(error);
+      return createErrorResult(error);
     }
   }
 
@@ -125,7 +131,7 @@ export class WebAdapter implements BiometricAuthAdapter {
         timeout: options.timeout || 60000,
         userVerification: options.userVerification || 'preferred',
         allowCredentials: storedIds.map(id => ({
-          id: this.base64ToArrayBuffer(id),
+          id: base64ToArrayBuffer(id),
           type: 'public-key'
         }))
       };
@@ -178,73 +184,6 @@ export class WebAdapter implements BiometricAuthAdapter {
     } catch {
       return null;
     }
-  }
-
-  private handleError(error: unknown): BiometricAuthResult {
-    let code = BiometricErrorCode.UNKNOWN_ERROR;
-    let message = 'An unknown error occurred';
-
-    if (error instanceof DOMException) {
-      switch (error.name) {
-        case 'NotAllowedError':
-          code = BiometricErrorCode.USER_CANCELLED;
-          message = 'User cancelled the authentication';
-          break;
-        case 'AbortError':
-          code = BiometricErrorCode.USER_CANCELLED;
-          message = 'Authentication was aborted';
-          break;
-        case 'SecurityError':
-          code = BiometricErrorCode.AUTHENTICATION_FAILED;
-          message = 'Security error during authentication';
-          break;
-        case 'InvalidStateError':
-          code = BiometricErrorCode.AUTHENTICATION_FAILED;
-          message = 'Invalid state for authentication';
-          break;
-        case 'NotSupportedError':
-          code = BiometricErrorCode.BIOMETRIC_UNAVAILABLE;
-          message = 'WebAuthn is not supported';
-          break;
-        default:
-          message = error.message || message;
-      }
-    } else if (error instanceof Error) {
-      message = error.message;
-    }
-
-    return {
-      success: false,
-      error: {
-        code,
-        message,
-        details: error
-      }
-    };
-  }
-
-  private generateSessionId(): string {
-    return Array.from(crypto.getRandomValues(new Uint8Array(16)))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-  }
-
-  private arrayBufferToBase64(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
-  }
-
-  private base64ToArrayBuffer(base64: string): ArrayBuffer {
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes.buffer;
   }
 
   private getStoredCredentialIds(): string[] {

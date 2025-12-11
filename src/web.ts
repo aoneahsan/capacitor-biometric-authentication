@@ -8,16 +8,19 @@ import {
   BiometricAuthConfig,
   BiometricType,
   BiometricUnavailableReason,
-  BiometricErrorCode,
+  LegacyBiometricErrorCode,
 } from './definitions';
 import {
   mergeCreateOptions,
   mergeGetOptions,
-  arrayBufferToBase64,
   storeCredentialId,
   getStoredCredentialIds,
   clearStoredCredentialIds,
 } from './utils/webauthn';
+import {
+  arrayBufferToBase64,
+  arrayBufferToBase64URL,
+} from './utils/encoding';
 
 export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
   private config: BiometricAuthConfig = {
@@ -29,18 +32,6 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
   private sessions: Map<string, { token: string; expiresAt: number }> =
     new Map();
 
-  // Helper function for base64url encoding
-  private arrayBufferToBase64URL(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary)
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
-  }
 
   async isAvailable(): Promise<BiometricAvailabilityResult> {
     // Check if Web Authentication API is available
@@ -106,7 +97,7 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
         return {
           success: false,
           error: {
-            code: BiometricErrorCode.NOT_AVAILABLE,
+            code: LegacyBiometricErrorCode.NOT_AVAILABLE,
             message:
               availability.errorMessage ||
               'Biometric authentication not available',
@@ -165,19 +156,19 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
         // Create enhanced token with credential data for backend verification
         const credentialData = {
           id: credential.id,
-          rawId: this.arrayBufferToBase64URL(credential.rawId),
+          rawId: arrayBufferToBase64URL(credential.rawId),
           response: {
-            authenticatorData: this.arrayBufferToBase64URL(
+            authenticatorData: arrayBufferToBase64URL(
               credential.response.authenticatorData
             ),
-            clientDataJSON: this.arrayBufferToBase64URL(
+            clientDataJSON: arrayBufferToBase64URL(
               credential.response.clientDataJSON
             ),
-            signature: this.arrayBufferToBase64URL(
+            signature: arrayBufferToBase64URL(
               credential.response.signature
             ),
             userHandle: credential.response.userHandle
-              ? this.arrayBufferToBase64URL(credential.response.userHandle)
+              ? arrayBufferToBase64URL(credential.response.userHandle)
               : undefined,
           },
           type: credential.type,
@@ -215,7 +206,7 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
       return {
         success: false,
         error: {
-          code: BiometricErrorCode.AUTHENTICATION_FAILED,
+          code: LegacyBiometricErrorCode.AUTHENTICATION_FAILED,
           message: 'Failed to authenticate with credential',
         },
       };
@@ -288,7 +279,7 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
       return {
         success: false,
         error: {
-          code: BiometricErrorCode.AUTHENTICATION_FAILED,
+          code: LegacyBiometricErrorCode.AUTHENTICATION_FAILED,
           message: 'Failed to authenticate with credential',
         },
       };
@@ -305,7 +296,7 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
         return {
           success: false,
           error: {
-            code: BiometricErrorCode.NOT_AVAILABLE,
+            code: LegacyBiometricErrorCode.NOT_AVAILABLE,
             message:
               availability.errorMessage ||
               'Biometric authentication not available',
@@ -375,7 +366,7 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
       return {
         success: false,
         error: {
-          code: BiometricErrorCode.AUTHENTICATION_FAILED,
+          code: LegacyBiometricErrorCode.AUTHENTICATION_FAILED,
           message: 'Failed to create credential',
         },
       };
@@ -408,12 +399,12 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
         // Create enhanced token with credential data for backend verification
         const credentialData = {
           id: credential.id,
-          rawId: this.arrayBufferToBase64URL(credential.rawId),
+          rawId: arrayBufferToBase64URL(credential.rawId),
           response: {
-            attestationObject: this.arrayBufferToBase64URL(
+            attestationObject: arrayBufferToBase64URL(
               credential.response.attestationObject
             ),
-            clientDataJSON: this.arrayBufferToBase64URL(
+            clientDataJSON: arrayBufferToBase64URL(
               credential.response.clientDataJSON
             ),
             transports: credential.response.getTransports?.() || [],
@@ -455,7 +446,7 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
       return {
         success: false,
         error: {
-          code: BiometricErrorCode.AUTHENTICATION_FAILED,
+          code: LegacyBiometricErrorCode.AUTHENTICATION_FAILED,
           message: 'Failed to create credential',
         },
       };
@@ -516,7 +507,7 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
         return {
           success: false,
           error: {
-            code: BiometricErrorCode.USER_CANCELLED,
+            code: LegacyBiometricErrorCode.USER_CANCELLED,
             message: 'User cancelled the authentication',
           },
         };
@@ -524,7 +515,7 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
         return {
           success: false,
           error: {
-            code: BiometricErrorCode.NOT_AVAILABLE,
+            code: LegacyBiometricErrorCode.NOT_AVAILABLE,
             message: 'Biometric authentication not supported',
           },
         };
@@ -532,7 +523,7 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
         return {
           success: false,
           error: {
-            code: BiometricErrorCode.INVALID_CONTEXT,
+            code: LegacyBiometricErrorCode.INVALID_CONTEXT,
             message: 'Invalid authentication context',
           },
         };
@@ -540,7 +531,7 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
         return {
           success: false,
           error: {
-            code: BiometricErrorCode.INVALID_CONTEXT,
+            code: LegacyBiometricErrorCode.INVALID_CONTEXT,
             message: 'Security requirements not met',
           },
         };
@@ -550,7 +541,7 @@ export class BiometricAuthWeb extends WebPlugin implements BiometricAuthPlugin {
     return {
       success: false,
       error: {
-        code: BiometricErrorCode.UNKNOWN,
+        code: LegacyBiometricErrorCode.UNKNOWN,
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',
       },

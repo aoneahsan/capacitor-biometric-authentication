@@ -1,91 +1,19 @@
 import { WebAuthnCreateOptions, WebAuthnGetOptions } from '../definitions';
+import {
+  toArrayBuffer,
+  generateChallenge,
+} from './encoding';
 
-/**
- * Convert various input formats to ArrayBuffer for WebAuthn API
- */
-export function toArrayBuffer(
-  data: ArrayBuffer | Uint8Array | string | undefined
-): ArrayBuffer | undefined {
-  if (!data) return undefined;
-
-  if (data instanceof ArrayBuffer) {
-    return data;
-  }
-
-  if (data instanceof Uint8Array) {
-    // Ensure we're working with ArrayBuffer, not SharedArrayBuffer
-    const buffer = data.buffer as ArrayBuffer;
-    return buffer.slice(
-      data.byteOffset,
-      data.byteOffset + data.byteLength
-    );
-  }
-
-  if (typeof data === 'string') {
-    try {
-      // First try base64url decoding (WebAuthn standard)
-      const base64 = data
-        .replace(/-/g, '+')
-        .replace(/_/g, '/')
-        .padEnd(data.length + ((4 - (data.length % 4)) % 4), '=');
-
-      const binaryString = atob(base64);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      return bytes.buffer;
-    } catch {
-      try {
-        // Fallback to regular base64 decoding
-        const binaryString = atob(data);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        return bytes.buffer;
-      } catch {
-        // If both fail, encode as UTF-8
-        return new TextEncoder().encode(data).buffer;
-      }
-    }
-  }
-
-  return undefined;
-}
-
-/**
- * Convert ArrayBuffer to base64 string for storage
- */
-export function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
-
-/**
- * Convert ArrayBuffer to base64url string (WebAuthn standard)
- */
-export function arrayBufferToBase64URL(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-
-/**
- * Generate a cryptographically secure random challenge
- */
-export function generateChallenge(): ArrayBuffer {
-  const challenge = new Uint8Array(32);
-  crypto.getRandomValues(challenge);
-  return challenge.buffer;
-}
+// Re-export encoding utilities for backward compatibility
+export {
+  toArrayBuffer,
+  arrayBufferToBase64,
+  arrayBufferToBase64URL,
+  base64ToArrayBuffer,
+  base64URLToArrayBuffer,
+  generateChallenge,
+  generateSessionId,
+} from './encoding';
 
 /**
  * Merge user-provided WebAuthn create options with defaults

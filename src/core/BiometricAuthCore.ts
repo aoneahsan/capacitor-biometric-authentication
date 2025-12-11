@@ -14,7 +14,7 @@ export class BiometricAuthCore {
   private config: BiometricAuthConfiguration = {
     adapter: 'auto',
     debug: false,
-    sessionDuration: 300, // 5 minutes in seconds
+    sessionDuration: 3600, // 1 hour in seconds (consistent with web.ts)
   };
   private sessionTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private adapters = new Map<string, BiometricAuthAdapter>();
