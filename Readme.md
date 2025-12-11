@@ -315,13 +315,31 @@ await BiometricAuth.authenticate({
 | Web | WebAuthn API | Chrome 67+ | ✅ |
 | iOS | Touch ID / Face ID | iOS 13.0 | ✅ |
 | Android | BiometricPrompt | API 23 | ✅ |
-| Electron | Touch ID (macOS) | - | ✅ |
+| Electron (macOS) | Touch ID | - | ✅ |
+| Electron (Windows) | Windows Hello | Windows 10 | ✅ |
 
 ### Browser Support
 
 - Chrome/Edge 67+ (Windows Hello, Touch ID)
 - Safari 14+ (Touch ID, Face ID)
 - Firefox 60+ (Windows Hello)
+
+### Windows Hello Support (Electron)
+
+The plugin supports Windows Hello on Electron for Windows platforms. When running on Windows (win32), the ElectronAdapter automatically uses the WebAuthn API to interface with Windows Hello.
+
+**Requirements:**
+- Windows 10 or later
+- Windows Hello configured in Windows Settings
+- Electron with WebAuthn support
+
+**Usage:** The same API works across all platforms:
+```javascript
+// Works on macOS (Touch ID) and Windows (Windows Hello)
+const result = await BiometricAuth.authenticate({
+  reason: 'Authenticate with Windows Hello'
+});
+```
 
 ---
 
@@ -444,6 +462,10 @@ See [Contributing Guide](./docs/CONTRIBUTING.md) for details.
 - [Troubleshooting Guide](./TROUBLESHOOTING.md)
 - [GitHub Issues](https://github.com/aoneahsan/capacitor-biometric-authentication/issues)
 - [Email](mailto:aoneahsan@gmail.com)
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for release history.
 
 ## License
 

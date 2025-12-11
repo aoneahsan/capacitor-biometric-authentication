@@ -42,6 +42,7 @@
   "bugs": {
     "url": "https://github.com/aoneahsan/capacitor-biometric-authentication/issues"
   },
+  "homepage": "https://github.com/aoneahsan/capacitor-biometric-authentication#readme",
   "type": "module",
   "keywords": [
     "capacitor",

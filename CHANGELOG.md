@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.4] - 2025-12-11
 
 ### Added
+- Windows Hello support in ElectronAdapter via WebAuthn API
+- Unified encoding utilities (`src/utils/encoding.ts`) for base64/ArrayBuffer conversions
+- Unified error handler utilities (`src/utils/error-handler.ts`) for consistent error handling
+- Comprehensive test suite (76 tests for utilities)
 - Full WebAuthn options support for web platform
 - Real cryptographic signature generation on Android using Android Keystore ECDSA keys
 - Real cryptographic signature generation on iOS using Keychain SecKey ECDSA keys
@@ -16,9 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Public key export in registration responses for backend verification
 - Lockout enforcement on iOS with configurable maxAttempts and lockoutDuration
 - Dynamic origin generation using actual app package/bundle identifier
+- New `webAuthnOptions` property in `BiometricAuthOptions` interface
+- Separate `register()` method for explicit credential creation (web platform)
+- Support for all WebAuthn creation options (challenge, RP config, user info, algorithms, attestation)
+- Support for all WebAuthn authentication options (challenge, credentials, verification, timeout)
+- Utility functions for WebAuthn data conversion
+- Credential storage mechanism for managing registered credentials
+- Intelligent authentication flow that automatically chooses between registration and authentication
 
 ### Fixed
 - **CRITICAL**: iOS `register()` method now properly exposed in Objective-C bridge
+- Session duration inconsistency fixed (300s → 3600s default)
 - Session duration units standardized to seconds (was incorrectly milliseconds in core)
 - Memory leak in BiometricAuthCore from uncleaned setTimeout callbacks
 - Hardcoded WebAuthn origin in Android replaced with dynamic package-based origin
@@ -29,40 +41,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Duplicate biometrics return in iOS (was returning both "touchId" and "fingerprint")
 - Duplicate imports in Android BiometricAuthPlugin.java
 - Session timeout now properly cleared on logout and new authentication
+- Type definitions consolidated into canonical `src/types/` directory
+- WebAuthn implementation now follows the specification correctly
+- Proper separation between credential creation and assertion
 
 ### Security
 - All cryptographic operations now use platform-specific secure enclaves (Android Keystore, iOS Keychain)
 - Signatures are generated using biometric-protected ECDSA P-256 keys
 - Challenge data is properly signed for WebAuthn compliance
 - Sign count is tracked and incremented for replay attack prevention
-- New `webAuthnOptions` property in `BiometricAuthOptions` interface
-- Separate `register()` method for explicit credential creation (web platform)
-- Support for all WebAuthn creation options:
-  - Custom challenge from server
-  - Full control over relying party (RP) configuration
-  - User information customization
-  - Public key algorithm preferences
-  - Authenticator selection criteria
-  - Attestation options
-  - Credential exclusion lists
-  - WebAuthn extensions
-- Support for all WebAuthn authentication options:
-  - Custom challenge handling
-  - Allowed credentials specification
-  - User verification requirements
-  - Timeout configuration
-- Utility functions for WebAuthn data conversion
-- Credential storage mechanism for managing registered credentials
-- Intelligent authentication flow that automatically chooses between registration and authentication
 
 ### Changed
+- ElectronAdapter now supports Windows (win32) platform via Windows Hello
+- Error handling consolidated across all adapters
 - `authenticate()` method now intelligently determines whether to register new credentials or authenticate existing ones
 - Web implementation now properly uses `navigator.credentials.get()` for authentication
 - Improved error handling with specific WebAuthn error mapping
-
-### Fixed
-- WebAuthn implementation now follows the specification correctly
-- Proper separation between credential creation and assertion
 
 ## [1.0.0] - 2024-01-XX
 
