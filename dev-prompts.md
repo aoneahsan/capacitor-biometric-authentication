@@ -2,6 +2,14 @@
 
 ## 7-12-25 prompts
 
+### p4
+do we not have to remove the installed versions from frontend and backend and then link them using yarn and each time we change anything in packages we need to rebuild the packages and update the link for cache update in projects? 
+
+### p3
+
+okay, can we setup the packages in frontend and backend project like so i will not have to publish and test them? i think it's yarn link or something please setup that, so i will be able to test changes without publishing, and make sure to build 
+the packages and update link state in frontend and backend each time you finish a prompt and we need to do that, make it a claude.md rule
+
 ### p2
 
 okay, update the frontend-test-app and backend-test-app app so we will only have a test page, and only that rendered in frontend-test-app so we can test the biometric connect, verify and disconnect as quickly as possible, a simple test page, with

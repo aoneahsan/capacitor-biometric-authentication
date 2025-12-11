@@ -85,25 +85,60 @@ yarn dev                # Dev server
 yarn start              # Production
 ```
 
+## ⚠️ CRITICAL: Yarn Link Setup (Local Development)
+
+All packages are linked via `yarn link` for instant testing without publishing.
+
+### Current Link Status
+
+| Package | Linked To | Command to Rebuild |
+|---------|-----------|-------------------|
+| `webauthn-server-buildkit` | `backend-test-app` | `cd webauthn-server-buildkit && yarn build` |
+| `capacitor-biometric-authentication` | `frontend-test-app` | `cd capacitor-biometric-authentication && yarn build` |
+
+### MANDATORY RULE
+
+**After making ANY changes to a package, you MUST rebuild it:**
+
+```bash
+# After changes to webauthn-server-buildkit:
+cd webauthn-server-buildkit && yarn build
+
+# After changes to capacitor-biometric-authentication:
+cd capacitor-biometric-authentication && yarn build
+```
+
+### Re-establishing Links (if needed)
+
+If links break (e.g., after `yarn install`), re-establish them:
+
+```bash
+# Step 1: Register packages
+cd webauthn-server-buildkit && yarn link
+cd capacitor-biometric-authentication && yarn link
+
+# Step 2: Link in test apps
+cd backend-test-app && yarn link "webauthn-server-buildkit"
+cd frontend-test-app && yarn link "capacitor-biometric-authentication"
+```
+
 ## Development Workflow
 
 ### Working on Frontend Package
 1. Make changes in `capacitor-biometric-authentication/src/`
-2. Build: `cd capacitor-biometric-authentication && yarn build`
-3. Test in frontend-test-app:
-   - Link or copy package
-   - `cd frontend-test-app && yarn dev`
+2. **Build**: `cd capacitor-biometric-authentication && yarn build`
+3. Changes are instantly available in `frontend-test-app` via yarn link
+4. Test: `cd frontend-test-app && yarn dev`
 
 ### Working on Backend Package
 1. Make changes in `webauthn-server-buildkit/src/`
-2. Build: `cd webauthn-server-buildkit && yarn build`
-3. Test in backend-test-app:
-   - Link or copy package
-   - `cd backend-test-app && yarn dev`
+2. **Build**: `cd webauthn-server-buildkit && yarn build`
+3. Changes are instantly available in `backend-test-app` via yarn link
+4. Test: `cd backend-test-app && yarn dev`
 
 ### Full Integration Testing
-1. Start backend-test-app
-2. Start frontend-test-app
+1. Start backend-test-app: `cd backend-test-app && yarn dev`
+2. Start frontend-test-app: `cd frontend-test-app && yarn dev`
 3. Test biometric registration/authentication flow end-to-end
 
 ## Rules
