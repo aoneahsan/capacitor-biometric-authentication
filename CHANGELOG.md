@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2025-12-11
+
+### Fixed
+- **Android Build Fix**: Changed `getInt()` to `optInt()` in `BiometricAuthPlugin.java` for default value support
+  - Fixed compilation error in `generateKeyPair()` method for `keySize` parameter
+  - Fixed compilation error in `generateKeyPair()` method for `authenticationValidityDuration` parameter
+  - Fixed compilation error in `generateSecretKeyForCrypto()` method for `authenticationValidityDuration` parameter
+  - Android's `JSONObject.getInt()` doesn't support default values, `optInt()` does
+
 ## [2.1.0] - 2025-12-11
 
 ### Added

@@ -754,8 +754,8 @@ public class BiometricAuthPlugin extends Plugin {
     @RequiresApi(api = Build.VERSION_CODES.M)
     private KeyPair generateKeyPair(String alias, JSObject androidOptions) throws Exception {
         String algorithm = androidOptions.getString("signatureAlgorithm", "SHA256withECDSA");
-        int keySize = androidOptions.getInt("keySize", 256);
-        int authValidityDuration = androidOptions.getInt("authenticationValidityDuration", -1);
+        int keySize = androidOptions.optInt("keySize", 256);
+        int authValidityDuration = androidOptions.optInt("authenticationValidityDuration", -1);
         boolean invalidateOnEnrollment = androidOptions.getBoolean("invalidateOnEnrollment", true);
         boolean requireStrongBiometric = androidOptions.getBoolean("requireStrongBiometric", false);
         
@@ -798,7 +798,7 @@ public class BiometricAuthPlugin extends Plugin {
     
     @RequiresApi(api = Build.VERSION_CODES.M)
     private SecretKey generateSecretKeyForCrypto(String alias, JSObject androidOptions) throws Exception {
-        int authValidityDuration = androidOptions.getInt("authenticationValidityDuration", -1);
+        int authValidityDuration = androidOptions.optInt("authenticationValidityDuration", -1);
         boolean invalidateOnEnrollment = androidOptions.getBoolean("invalidateOnEnrollment", true);
         boolean requireStrongBiometric = androidOptions.getBoolean("requireStrongBiometric", false);
         

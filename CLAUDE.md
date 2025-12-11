@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-**Last Updated:** 2025-12-07
+**Last Updated:** 2025-12-11
 **Readme.md Last Updated:** 2025-12-02
 **Project Knowledge Base Last Updated:** 2025-12-02
 
@@ -100,6 +100,19 @@ No .sh files or scripts folder. Use package.json scripts or run commands directl
 
 ### No Unnecessary Files
 Don't create docs/txt/record files unless explicitly requested or absolutely required. No TODO.md, NOTES.txt, scratch files.
+
+### Error Documentation (MANDATORY)
+
+**When you encounter build/runtime errors, you MUST document them in BOTH locations:**
+
+1. **Local:** `docs/ERRORS-REFERENCE.md` (this project)
+2. **Global:** `~/.claude/docs/ERRORS-REFERENCE.md` (all projects reference)
+
+Include: Date, Version, Severity, Full error message, Cause, Wrong code, Fix, Lesson learned.
+
+In global file, also include project name and path for cross-reference.
+
+**This rule overrides "No Unnecessary Files" - ERRORS-REFERENCE.md is always allowed.**
 
 ### Gitignore Policy
 Ask "Private or public project?" before configuring:
