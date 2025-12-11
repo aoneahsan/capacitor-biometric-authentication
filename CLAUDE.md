@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-**Last Updated:** 2025-12-07
+**Last Updated:** 2025-12-11
 
 ## Project Overview
 
@@ -167,6 +167,20 @@ Keep root clean. Only allowed files:
 - Don't create docs/txt/record files unless explicitly requested
 - Prefer editing existing files over creating new ones
 - Keep documentation minimal and actionable
+
+### Error Documentation (MANDATORY)
+
+**When you encounter build/runtime errors, you MUST document them in BOTH locations:**
+
+1. **Project Local:** `<project>/docs/ERRORS-REFERENCE.md`
+   - Full error details for that specific project
+
+2. **Global Reference:** `~/.claude/docs/ERRORS-REFERENCE.md`
+   - Cross-project reference with project name and path
+
+Include: Date, Project, Version, Severity, Full error message, Cause, Wrong code, Fix, Lesson learned.
+
+**This rule overrides "No Unnecessary Files" - ERRORS-REFERENCE.md is always allowed and encouraged.**
 
 ## Tech Stack Summary
 
