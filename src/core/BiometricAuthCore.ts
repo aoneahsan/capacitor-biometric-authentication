@@ -24,9 +24,26 @@ export class BiometricAuthCore {
   };
   private platformDetector = PlatformDetector.getInstance();
   private subscribers = new Set<(state: BiometricAuthState) => void>();
+  // Store initialization promise to prevent race conditions
+  // Methods can await this to ensure adapter is ready before use
+  private initPromise: Promise<void>;
 
   private constructor() {
-    this.initialize();
+    // Store the promise so we can await it in methods
+    this.initPromise = this.initialize().catch(err => {
+      if (this.config.debug) {
+        console.warn('[BiometricAuth] Initialization failed:', err);
+      }
+    });
+  }
+
+  /**
+   * Ensures the adapter is initialized before use.
+   * This prevents race conditions where methods are called before
+   * the async initialization completes.
+   */
+  private async ensureInitialized(): Promise<void> {
+    await this.initPromise;
   }
 
   static getInstance(): BiometricAuthCore {
@@ -116,10 +133,12 @@ export class BiometricAuthCore {
   }
 
   async isAvailable(): Promise<boolean> {
+    await this.ensureInitialized();
+
     if (!this.currentAdapter) {
       return false;
     }
-    
+
     try {
       return await this.currentAdapter.isAvailable();
     } catch (error) {
@@ -131,10 +150,12 @@ export class BiometricAuthCore {
   }
 
   async getSupportedBiometrics(): Promise<BiometryType[]> {
+    await this.ensureInitialized();
+
     if (!this.currentAdapter) {
       return [];
     }
-    
+
     try {
       return await this.currentAdapter.getSupportedBiometrics();
     } catch (error) {
@@ -146,6 +167,8 @@ export class BiometricAuthCore {
   }
 
   async authenticate(options?: BiometricAuthOptions): Promise<BiometricAuthResult> {
+    await this.ensureInitialized();
+
     if (!this.currentAdapter) {
       return {
         success: false,
@@ -207,6 +230,8 @@ export class BiometricAuthCore {
   }
 
   async deleteCredentials(): Promise<void> {
+    await this.ensureInitialized();
+
     if (!this.currentAdapter) {
       throw new Error('No biometric adapter available');
     }
@@ -216,6 +241,8 @@ export class BiometricAuthCore {
   }
 
   async hasCredentials(): Promise<boolean> {
+    await this.ensureInitialized();
+
     if (!this.currentAdapter) {
       return false;
     }

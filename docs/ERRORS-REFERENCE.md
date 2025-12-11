@@ -151,7 +151,7 @@ All plugin methods in iOS must have the `@objc` attribute to be callable from th
 ### 1. Plugin Already Registered / .then() Not Implemented
 
 **Date:** 2025-12-12
-**Version:** 2.1.1 → 2.1.2
+**Version:** 2.1.1 → 2.1.2 → 2.1.3
 **Severity:** Critical (Runtime Failure)
 
 **Error Messages:**
@@ -161,59 +161,74 @@ Capacitor plugin "BiometricAuth" already registered. Cannot register plugins twi
 Uncaught (in promise) Error: "BiometricAuth.then()" is not implemented on android
 ```
 
-**Cause:**
-The JavaScript code in the package was trying to register a Capacitor plugin with `registerPlugin('BiometricAuth', ...)` on ALL platforms. However, on Android and iOS, the native plugin is already registered automatically by Capacitor. This caused:
-1. "Already registered" warning when the JS tried to register over the native plugin
-2. ".then() not implemented" error because the native plugin doesn't have a `.then()` method (it's not a Promise)
+**Root Cause (Deep Analysis):**
+The Capacitor plugin proxy intercepts ALL property access on the plugin object, including:
+1. Truthiness checks (`if (plugin)` triggers proxy)
+2. Accessing `Capacitor.Plugins['BiometricAuth']` triggers proxy on native
+3. When `.then()` is accessed (e.g., when awaiting), it tries to call native "then" method
+
+Multiple issues contributed to the error:
+1. **CapacitorAdapter**: Checking `if (this.capacitorPlugin)` triggers the proxy
+2. **BiometricAuthCore**: Async `initialize()` not awaited in constructor, causing race conditions
+3. **index.ts**: Accessing `Capacitor.Plugins['BiometricAuth']` triggered proxy on native platforms
+4. **index.ts**: Plugin registration happened during module load, before Capacitor initialized
 
 **Wrong Code:**
 ```typescript
-// src/index.ts - registering on all platforms
-if (typeof window !== 'undefined') {
-  const capacitorGlobal = (window as unknown as { Capacitor?: { registerPlugin?: ... } });
-  if (capacitorGlobal.Capacitor?.registerPlugin) {
-    // This runs on ALL platforms including Android/iOS - BAD!
-    registerPlugin('BiometricAuth', { web: BiometricAuthPlugin });
-  }
+// CapacitorAdapter.ts - checking plugin truthiness triggers proxy
+if (this.capacitorPlugin) {
+  return this.capacitorPlugin;
+}
+
+// index.ts - accessing Plugins triggers proxy on native
+const alreadyRegistered = capacitorGlobal.Capacitor?.Plugins?.['BiometricAuth'] !== undefined;
+
+// BiometricAuthCore.ts - async init not awaited
+private constructor() {
+  this.initialize(); // NOT awaited - methods can be called before ready!
 }
 ```
 
-**Fix:**
-Only register the plugin on web platform, skip on native platforms:
-
+**Fix (Version 2.1.3):**
 ```typescript
-// src/index.ts - only register on web
-if (typeof window !== 'undefined') {
-  const capacitorGlobal = (window as unknown as {
-    Capacitor?: {
-      registerPlugin?: (name: string, options: unknown) => void;
-      isNativePlatform?: () => boolean;
-      getPlatform?: () => string;
-      Plugins?: Record<string, unknown>;
-    }
-  });
+// CapacitorAdapter.ts - use flag instead of truthiness check
+private pluginInitialized = false;
+if (this.pluginInitialized) {
+  return this.capacitorPlugin;
+}
 
-  // Skip registration on native platforms
+// index.ts - don't access Plugins, use queueMicrotask to delay
+const initializeWebPlugin = () => {
   const isNative = capacitorGlobal.Capacitor?.isNativePlatform?.() ?? false;
-  const platform = capacitorGlobal.Capacitor?.getPlatform?.() ?? 'web';
-  const alreadyRegistered = capacitorGlobal.Capacitor?.Plugins?.['BiometricAuth'] !== undefined;
+  if (isNative) return; // Early exit for native
+  // ... registration code
+};
+queueMicrotask(initializeWebPlugin);
 
-  if (!isNative && platform === 'web' && !alreadyRegistered && capacitorGlobal.Capacitor?.registerPlugin) {
-    // Only register for web
-    registerPlugin('BiometricAuth', { web: BiometricAuthPlugin });
-  }
+// BiometricAuthCore.ts - store and await init promise
+private initPromise: Promise<void>;
+private constructor() {
+  this.initPromise = this.initialize();
+}
+async isAvailable() {
+  await this.ensureInitialized(); // Wait for init before using adapter
+  // ...
 }
 ```
 
 **Files Affected:**
 - `src/index.ts`
+- `src/adapters/CapacitorAdapter.ts`
+- `src/core/BiometricAuthCore.ts`
 
 **Lesson Learned:**
 When creating Capacitor plugins with both native (Android/iOS) and web implementations:
-1. Native platforms register plugins automatically - don't try to re-register from JS
-2. Use `Capacitor.isNativePlatform()` and `Capacitor.getPlatform()` to detect platform
-3. Only register web fallbacks when actually running on web
-4. Check `Capacitor.Plugins` to see if plugin is already registered
+1. **NEVER check plugin truthiness** - use a separate flag to track initialization
+2. **NEVER access `Capacitor.Plugins[name]`** on native - this triggers the proxy
+3. **Await initialization** before using adapters in async methods
+4. **Use queueMicrotask** to delay web registration until after Capacitor init
+5. **Early exit for native platforms** - don't touch anything Capacitor-related on native
+6. The Capacitor proxy intercepts ALL property access including `.then()` for Promise detection
 
 ---
 

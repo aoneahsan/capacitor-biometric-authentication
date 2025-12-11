@@ -9,37 +9,43 @@ import {
 
 export class CapacitorAdapter implements BiometricAuthAdapter {
   platform = 'capacitor';
-  private capacitorPlugin: unknown;
+  private capacitorPlugin: unknown = null;
+  // IMPORTANT: Use a flag to track initialization instead of checking plugin truthiness
+  // Capacitor's plugin proxy intercepts ALL property access including truthiness checks
+  // which can trigger ".then() is not implemented" errors
+  private pluginInitialized = false;
 
   constructor() {
     // Plugin will be loaded dynamically
   }
 
   private async getPlugin() {
-    if (this.capacitorPlugin) {
+    // Use flag-based check instead of checking plugin truthiness
+    // to avoid triggering Capacitor proxy's property interception
+    if (this.pluginInitialized) {
       return this.capacitorPlugin;
     }
 
     try {
       // Try to get the registered Capacitor plugin
       const capacitorCore = await import('@capacitor/core');
-      
+
       // Try using registerPlugin if available
       if (capacitorCore.registerPlugin) {
         try {
           this.capacitorPlugin = capacitorCore.registerPlugin('BiometricAuth');
-          if (this.capacitorPlugin) {
-            return this.capacitorPlugin;
-          }
+          this.pluginInitialized = true;
+          return this.capacitorPlugin;
         } catch {
           // Continue to fallback
         }
       }
-      
+
       // Legacy support for older Capacitor versions
       const legacyPlugins = (capacitorCore as unknown as { Plugins?: { BiometricAuth?: unknown } }).Plugins;
       if (legacyPlugins?.BiometricAuth) {
         this.capacitorPlugin = legacyPlugins.BiometricAuth;
+        this.pluginInitialized = true;
         return this.capacitorPlugin;
       }
 
@@ -48,6 +54,7 @@ export class CapacitorAdapter implements BiometricAuthAdapter {
       const BiometricAuthPlugin = (window as unknown as { BiometricAuthPlugin?: unknown }).BiometricAuthPlugin;
       if (BiometricAuthPlugin) {
         this.capacitorPlugin = BiometricAuthPlugin;
+        this.pluginInitialized = true;
         return this.capacitorPlugin;
       }
 
