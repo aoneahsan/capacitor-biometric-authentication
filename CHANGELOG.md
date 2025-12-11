@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.2] - 2025-12-12
+
+### Fixed
+- **Android/iOS Runtime Fix**: Fixed "BiometricAuth already registered" and "BiometricAuth.then() not implemented" errors
+  - Plugin registration now only happens on web platform
+  - Added platform detection to skip registration on native platforms (Android/iOS)
+  - Added check to prevent duplicate plugin registration
+  - Native platforms use their own plugin implementations, web uses JavaScript fallback
+
 ## [2.1.1] - 2025-12-11
 
 ### Fixed

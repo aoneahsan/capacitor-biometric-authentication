@@ -146,6 +146,77 @@ All plugin methods in iOS must have the `@objc` attribute to be callable from th
 
 ---
 
+## Capacitor Runtime Errors
+
+### 1. Plugin Already Registered / .then() Not Implemented
+
+**Date:** 2025-12-12
+**Version:** 2.1.1 → 2.1.2
+**Severity:** Critical (Runtime Failure)
+
+**Error Messages:**
+```
+Capacitor plugin "BiometricAuth" already registered. Cannot register plugins twice.
+
+Uncaught (in promise) Error: "BiometricAuth.then()" is not implemented on android
+```
+
+**Cause:**
+The JavaScript code in the package was trying to register a Capacitor plugin with `registerPlugin('BiometricAuth', ...)` on ALL platforms. However, on Android and iOS, the native plugin is already registered automatically by Capacitor. This caused:
+1. "Already registered" warning when the JS tried to register over the native plugin
+2. ".then() not implemented" error because the native plugin doesn't have a `.then()` method (it's not a Promise)
+
+**Wrong Code:**
+```typescript
+// src/index.ts - registering on all platforms
+if (typeof window !== 'undefined') {
+  const capacitorGlobal = (window as unknown as { Capacitor?: { registerPlugin?: ... } });
+  if (capacitorGlobal.Capacitor?.registerPlugin) {
+    // This runs on ALL platforms including Android/iOS - BAD!
+    registerPlugin('BiometricAuth', { web: BiometricAuthPlugin });
+  }
+}
+```
+
+**Fix:**
+Only register the plugin on web platform, skip on native platforms:
+
+```typescript
+// src/index.ts - only register on web
+if (typeof window !== 'undefined') {
+  const capacitorGlobal = (window as unknown as {
+    Capacitor?: {
+      registerPlugin?: (name: string, options: unknown) => void;
+      isNativePlatform?: () => boolean;
+      getPlatform?: () => string;
+      Plugins?: Record<string, unknown>;
+    }
+  });
+
+  // Skip registration on native platforms
+  const isNative = capacitorGlobal.Capacitor?.isNativePlatform?.() ?? false;
+  const platform = capacitorGlobal.Capacitor?.getPlatform?.() ?? 'web';
+  const alreadyRegistered = capacitorGlobal.Capacitor?.Plugins?.['BiometricAuth'] !== undefined;
+
+  if (!isNative && platform === 'web' && !alreadyRegistered && capacitorGlobal.Capacitor?.registerPlugin) {
+    // Only register for web
+    registerPlugin('BiometricAuth', { web: BiometricAuthPlugin });
+  }
+}
+```
+
+**Files Affected:**
+- `src/index.ts`
+
+**Lesson Learned:**
+When creating Capacitor plugins with both native (Android/iOS) and web implementations:
+1. Native platforms register plugins automatically - don't try to re-register from JS
+2. Use `Capacitor.isNativePlatform()` and `Capacitor.getPlatform()` to detect platform
+3. Only register web fallbacks when actually running on web
+4. Check `Capacitor.Plugins` to see if plugin is already registered
+
+---
+
 ## Capacitor Sync Errors
 
 *(No errors documented yet)*
@@ -170,4 +241,4 @@ When you encounter a new error:
 
 ---
 
-**Last Updated:** 2025-12-11
+**Last Updated:** 2025-12-12

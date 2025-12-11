@@ -67,40 +67,53 @@ export { WebAdapter } from './adapters/WebAdapter';
 export { CapacitorAdapter } from './adapters/CapacitorAdapter';
 
 // For backward compatibility with Capacitor plugin registration
+// ONLY register on web platform - native platforms (Android/iOS) have their own plugin implementations
 if (typeof window !== 'undefined') {
-  const capacitorGlobal = (window as unknown as { Capacitor?: { registerPlugin?: (name: string, options: unknown) => void } });
-  if (capacitorGlobal.Capacitor?.registerPlugin) {
-    // Register as a Capacitor plugin for backward compatibility
-    const { registerPlugin } = capacitorGlobal.Capacitor;
-    if (registerPlugin) {
-      try {
-        // Create a Capacitor-compatible plugin interface
-        const BiometricAuthPlugin = {
-          isAvailable: async () => ({ isAvailable: await BiometricAuth.isAvailable() }),
-          getSupportedBiometrics: async () => ({ 
-            biometryTypes: await BiometricAuth.getSupportedBiometrics() 
-          }),
-          authenticate: async (options: BiometricAuthOptions) => {
-            const result = await BiometricAuth.authenticate(options);
-            return {
-              success: result.success,
-              error: result.error,
-              biometryType: result.biometryType
-            };
-          },
-          deleteCredentials: async () => {
-            await BiometricAuth.deleteCredentials();
-            return {};
-          }
-        };
+  const capacitorGlobal = (window as unknown as {
+    Capacitor?: {
+      registerPlugin?: (name: string, options: unknown) => void;
+      isNativePlatform?: () => boolean;
+      getPlatform?: () => string;
+      Plugins?: Record<string, unknown>;
+    }
+  });
 
-        // Register the plugin
-        registerPlugin('BiometricAuth', {
-          web: BiometricAuthPlugin
-        });
-      } catch {
-        // Ignore registration errors - not critical
-      }
+  // Skip registration if:
+  // 1. We're on a native platform (Android/iOS) - they have native plugins
+  // 2. The plugin is already registered
+  const isNative = capacitorGlobal.Capacitor?.isNativePlatform?.() ?? false;
+  const platform = capacitorGlobal.Capacitor?.getPlatform?.() ?? 'web';
+  const alreadyRegistered = capacitorGlobal.Capacitor?.Plugins?.['BiometricAuth'] !== undefined;
+
+  if (!isNative && platform === 'web' && !alreadyRegistered && capacitorGlobal.Capacitor?.registerPlugin) {
+    const { registerPlugin } = capacitorGlobal.Capacitor;
+    try {
+      // Create a Capacitor-compatible plugin interface for web only
+      const BiometricAuthPlugin = {
+        isAvailable: async () => ({ isAvailable: await BiometricAuth.isAvailable() }),
+        getSupportedBiometrics: async () => ({
+          biometryTypes: await BiometricAuth.getSupportedBiometrics()
+        }),
+        authenticate: async (options: BiometricAuthOptions) => {
+          const result = await BiometricAuth.authenticate(options);
+          return {
+            success: result.success,
+            error: result.error,
+            biometryType: result.biometryType
+          };
+        },
+        deleteCredentials: async () => {
+          await BiometricAuth.deleteCredentials();
+          return {};
+        }
+      };
+
+      // Register the plugin for web only
+      registerPlugin('BiometricAuth', {
+        web: BiometricAuthPlugin
+      });
+    } catch {
+      // Ignore registration errors - not critical
     }
   }
 }
