@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.4] - 2025-12-12
+
+### Fixed
+- **CRITICAL Android/iOS Fix**: Finally resolved "BiometricAuth.then() is not implemented on android" error
+  - **Root Cause**: On native platforms, calling `registerPlugin('BiometricAuth')` creates a SECOND proxy that conflicts with the auto-registered native plugin, causing `.then()` interception errors
+  - **CapacitorAdapter**: Now uses `Capacitor.Plugins.BiometricAuth` on native platforms (already registered) instead of calling `registerPlugin()` again
+  - **CapacitorAdapter**: Only calls `registerPlugin()` on web platforms where no native plugin exists
+  - **index.ts**: Removed ALL web plugin registration code - it was causing conflicts on native platforms
+  - The exported `BiometricAuth` API now cleanly delegates to the appropriate adapter without touching Capacitor's plugin registry
+
 ## [2.1.3] - 2025-12-12
 
 ### Fixed

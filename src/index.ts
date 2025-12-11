@@ -66,68 +66,11 @@ export { PlatformDetector } from './core/platform-detector';
 export { WebAdapter } from './adapters/WebAdapter';
 export { CapacitorAdapter } from './adapters/CapacitorAdapter';
 
-// For backward compatibility with Capacitor plugin registration
-// ONLY register on web platform - native platforms (Android/iOS) have their own plugin implementations
-// IMPORTANT: Use queueMicrotask to delay registration and avoid race conditions
-// IMPORTANT: DO NOT access Capacitor.Plugins['BiometricAuth'] - this triggers proxy on native platforms
-const initializeWebPlugin = () => {
-  if (typeof window === 'undefined') return;
-
-  const capacitorGlobal = (window as unknown as {
-    Capacitor?: {
-      registerPlugin?: (name: string, options: unknown) => void;
-      isNativePlatform?: () => boolean;
-      getPlatform?: () => string;
-    }
-  });
-
-  // Early exit for native platforms - they have their own native plugins
-  // DO NOT try to register anything on native platforms
-  const isNative = capacitorGlobal.Capacitor?.isNativePlatform?.() ?? false;
-  if (isNative) return;
-
-  const platform = capacitorGlobal.Capacitor?.getPlatform?.() ?? 'web';
-  if (platform !== 'web') return;
-
-  // Only register for pure web platform
-  if (!capacitorGlobal.Capacitor?.registerPlugin) return;
-
-  const { registerPlugin } = capacitorGlobal.Capacitor;
-  try {
-    // Create a Capacitor-compatible plugin interface for web only
-    const BiometricAuthPlugin = {
-      isAvailable: async () => ({ isAvailable: await BiometricAuth.isAvailable() }),
-      getSupportedBiometrics: async () => ({
-        biometryTypes: await BiometricAuth.getSupportedBiometrics()
-      }),
-      authenticate: async (options: BiometricAuthOptions) => {
-        const result = await BiometricAuth.authenticate(options);
-        return {
-          success: result.success,
-          error: result.error,
-          biometryType: result.biometryType
-        };
-      },
-      deleteCredentials: async () => {
-        await BiometricAuth.deleteCredentials();
-        return {};
-      }
-    };
-
-    // Register the plugin for web only
-    registerPlugin('BiometricAuth', {
-      web: BiometricAuthPlugin
-    });
-  } catch {
-    // Ignore registration errors - not critical
-  }
-};
-
-// Use queueMicrotask to delay registration until after the current execution context
-// This prevents race conditions with Capacitor's initialization
-if (typeof window !== 'undefined' && typeof queueMicrotask !== 'undefined') {
-  queueMicrotask(initializeWebPlugin);
-} else if (typeof window !== 'undefined') {
-  // Fallback for environments without queueMicrotask
-  setTimeout(initializeWebPlugin, 0);
-}
+// NOTE: Web plugin registration has been REMOVED
+//
+// The BiometricAuth package now works as follows:
+// - On NATIVE (Android/iOS): Uses Capacitor.Plugins.BiometricAuth which is auto-registered by native layer
+// - On WEB: Uses WebAdapter which implements WebAuthn API directly
+//
+// DO NOT add registerPlugin() calls here - it causes ".then() is not implemented" errors
+// on native platforms because it creates a conflicting proxy over the already-registered native plugin

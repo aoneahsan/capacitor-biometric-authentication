@@ -30,7 +30,34 @@ export class CapacitorAdapter implements BiometricAuthAdapter {
       // Try to get the registered Capacitor plugin
       const capacitorCore = await import('@capacitor/core');
 
-      // Try using registerPlugin if available
+      // Get Capacitor global object for platform detection
+      const capacitorGlobal = (capacitorCore as unknown as {
+        Capacitor?: {
+          isNativePlatform?: () => boolean;
+          Plugins?: Record<string, unknown>;
+        }
+      }).Capacitor;
+
+      // Check if we're on a native platform (Android/iOS)
+      const isNative = capacitorGlobal?.isNativePlatform?.() ?? false;
+
+      if (isNative) {
+        // CRITICAL: On native platforms, the plugin is ALREADY registered by Capacitor
+        // DO NOT call registerPlugin() again - it creates a broken proxy that throws
+        // ".then() is not implemented" errors when JavaScript checks for Promise-like objects
+        // Instead, get the reference from Capacitor.Plugins which has the working native bridge
+        const nativePlugin = capacitorGlobal?.Plugins?.['BiometricAuth'];
+        if (nativePlugin) {
+          this.capacitorPlugin = nativePlugin;
+          this.pluginInitialized = true;
+          return this.capacitorPlugin;
+        }
+        // If not in Plugins yet, it might still be initializing - throw to retry later
+        throw new Error('Native BiometricAuth plugin not yet registered');
+      }
+
+      // WEB ONLY: Use registerPlugin to create a web implementation
+      // This is safe on web because there's no native plugin to conflict with
       if (capacitorCore.registerPlugin) {
         try {
           this.capacitorPlugin = capacitorCore.registerPlugin('BiometricAuth');
@@ -41,7 +68,7 @@ export class CapacitorAdapter implements BiometricAuthAdapter {
         }
       }
 
-      // Legacy support for older Capacitor versions
+      // Legacy support for older Capacitor versions (web only)
       const legacyPlugins = (capacitorCore as unknown as { Plugins?: { BiometricAuth?: unknown } }).Plugins;
       if (legacyPlugins?.BiometricAuth) {
         this.capacitorPlugin = legacyPlugins.BiometricAuth;
