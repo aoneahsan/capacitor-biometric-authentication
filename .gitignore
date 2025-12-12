@@ -1,21 +1,35 @@
 # ===========================================
 # Root .gitignore for Biometric Package Monorepo
 # ===========================================
+# This gitignore covers all subprojects:
+# - capacitor-biometric-authentication (frontend package)
+# - webauthn-server-buildkit (backend package)
+# - frontend-test-app (test app)
+# - backend-test-app (test app)
 
-# Node modules (all projects)
+# ===========================================
+# Dependencies
+# ===========================================
 node_modules/
 **/node_modules/
+*node_modules*
+.pnp
+.pnp.js
+.pnp.*
 
-# Build outputs
+# ===========================================
+# Build Outputs
+# ===========================================
 dist/
 build/
 www/
+target/
 *.tsbuildinfo
 
-# Package manager files
+# ===========================================
+# Package Manager
+# ===========================================
 package-lock.json
-.pnp
-.pnp.js
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
@@ -23,13 +37,18 @@ package-lock.json
 !.yarn/sdks
 !.yarn/versions
 
-# Environment files
+# ===========================================
+# Environment Files
+# ===========================================
 .env
-.env.local
-.env.*.local
+.env.*
 *.env
+*.env.*
+!.env.example
 
+# ===========================================
 # Logs
+# ===========================================
 logs/
 *.log
 npm-debug.log*
@@ -37,13 +56,18 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+debug.log*
 
-# OS files
+# ===========================================
+# OS Files
+# ===========================================
 .DS_Store
 Thumbs.db
 ehthumbs.db
 
-# IDE/Editor files
+# ===========================================
+# IDE/Editor Files
+# ===========================================
 .idea/
 .vscode/
 *.swp
@@ -52,30 +76,44 @@ ehthumbs.db
 *.sublime-workspace
 *.sublime-project
 
-# Temporary files
+# ===========================================
+# Temporary Files
+# ===========================================
 *.tmp
 *.temp
 .cache/
 .temp/
 
+# ===========================================
 # Testing/Coverage
+# ===========================================
 coverage/
 .nyc_output/
+TEST*.xml
+testing/
 
 # ===========================================
-# Capacitor/Mobile (Android & iOS)
+# Capacitor/Mobile - Android
 # ===========================================
-
-# Android
+# Build artifacts (ignore)
 **/android/.gradle/
 **/android/build/
 **/android/app/build/
+**/android/app/release/
+**/android/app/.gradle/
 **/android/local.properties
 **/android/.cxx/
 **/android/captures/
 **/android/.externalNativeBuild/
+**/android/app/src/main/assets/capacitor.config.json
 
-# iOS
+# Signing keys
+*.keystore
+
+# ===========================================
+# Capacitor/Mobile - iOS
+# ===========================================
+# Build artifacts (ignore)
 **/ios/Pods/
 **/ios/build/
 **/ios/DerivedData/
@@ -83,12 +121,22 @@ coverage/
 **/ios/*.xcodeproj/xcuserdata/
 **/ios/*.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 **/.cocoapods/
+**/ios/Podfile.lock
+**/ios/xcuserdata/
+**/ios/App/App/public/
+**/ios/App/build/
+**/ios/App/Pods/
+
+# Cordova plugins for Capacitor
+**/ios/capacitor-cordova-ios-plugins/
+
+# Firebase config (if contains secrets)
+**/ios/App/App/GoogleService-Info.plist
 
 # ===========================================
-# Custom ignore patterns
+# Custom Ignore Patterns
 # ===========================================
-
-# Files/folders with .ignore. in name
+# Files/folders with .ignore. in name (for local scratch files)
 *.ignore.*
 *.ignore
 **/*.ignore.*
@@ -98,20 +146,63 @@ coverage/
 project-record-ignore/
 **/project-record-ignore/
 
+# AI prompts ignore folders
+**/ai-prompts-ignore/
+
 # Backup files
 *.bak
 *.backup
 *.orig
 
 # ===========================================
+# Compiled/Binary Files
+# ===========================================
+# Java
+*.class
+*.jar
+
+# Python
+*.py[cod]
+
+# Applications
+*.app
+*.exe
+*.war
+
+# ===========================================
+# Large Media Files (optional - uncomment if needed)
+# ===========================================
+# *.mp4
+# *.tiff
+# *.avi
+# *.flv
+# *.mov
+# *.wmv
+
+# ===========================================
 # Misc
 # ===========================================
-
-# TypeScript
-*.tsbuildinfo
-
 # Sentry
 .sentryclirc
 
 # History
 .history/
+
+# Git
+.git-*
+
+# ESLint cache
+.eslintcache
+
+# Example app artifacts (for capacitor-biometric-authentication)
+example/node_modules/
+example/dist/
+example/build/
+example/www/
+example/android/.gradle/
+example/android/build/
+example/android/app/build/
+example/android/local.properties
+example/ios/Pods/
+example/ios/build/
+example/ios/DerivedData/
